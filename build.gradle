@@ -16,6 +16,7 @@
 plugins {
     id 'net.researchgate.release' version '2.1.2'
     id "nebula.os-package" version "2.2.6"
+    id "org.asciidoctor.convert" version "1.5.2"    //doc
 
 }
 
@@ -57,6 +58,8 @@ project.ext {
      */
     mainClass = 'org.project.openbaton.nfvo.main.Application'
     //------------------------------------------------//
+    snippetsDir = file('/opt/openbaton/nfvo/build/generated-snippets')  //doc
+    springRestdocsVersion = '1.0.0.RC1'   //doc
 }
 
 apply from: 'openbaton-libs/gradle/gradle/application.java.gradle'
@@ -67,9 +70,27 @@ apply from: 'gradle/gradle/packaging.debian.gradle'
 
 repositories {
     mavenCentral()
+    maven { url 'https://repo.spring.io/libs-snapshot' }
+
 }
 
 dependencies {
     compile project(':main')
 }
 
+asciidoctor {   // doc
+    sourceDir '/opt/openbaton/nfvo/main/src/main/asciidoc'
+    attributes 'snippets': snippetsDir
+    inputs.dir snippetsDir
+    dependsOn test
+}
+
+test {  //doc
+    outputs.dir snippetsDir
+}
+
+jar {   //doc
+    dependsOn asciidoctor
+    from ("${asciidoctor.outputDir}/html5") {
+    }
+}

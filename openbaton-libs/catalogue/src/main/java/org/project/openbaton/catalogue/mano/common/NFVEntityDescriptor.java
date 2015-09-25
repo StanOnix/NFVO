@@ -165,7 +165,7 @@ public abstract class NFVEntityDescriptor implements Serializable {
 			Set<DeploymentFlavour> service_deployment_flavour) {
 		this.service_deployment_flavour = service_deployment_flavour;
 	}
-	
-	
+
+
 
 }

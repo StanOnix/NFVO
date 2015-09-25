@@ -43,8 +43,31 @@ dependencies {
     runtime project(':vnfm-impl')
     compile project(':vnfm-int')
 
+    compile("mysql:mysql-connector-java:5.1.35")
+    compile("org.hsqldb:hsqldb:2.0.0")
+
+    compile("org.springframework.boot:spring-boot-starter-websocket:" + springBootVersion)
+
+    testCompile("com.jayway.jsonpath:json-path-assert:2.0.0")
+    testCompile("org.mockito:mockito-all:1.10.19")
+    testCompile("junit:junit:4.12")
+
     testCompile 'org.springframework:spring-test:' + springVersion
     testCompile 'junit:junit:4.12'
     testCompile 'org.springframework.boot:spring-boot-starter-data-jpa:' + springBootVersion
     testCompile 'org.hsqldb:hsqldb:2.3.2'
+    testCompile 'org.springframework.restdocs:spring-restdocs-mockmvc:1.0.0.RC1'   //doc
+    testCompile 'org.springframework.restdocs:spring-restdocs-core:1.0.0.RC1'   //doc
+    testCompile 'com.google.code.gson:gson:1.7.2'   //doc
+    testCompile 'org.json:json:20090211'    //doc
+
 }
+
+repositories {
+    maven { url 'https://repo.spring.io/libs-snapshot' }
+}
+
+
+
+
+
