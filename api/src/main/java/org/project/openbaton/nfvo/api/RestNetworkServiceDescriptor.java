@@ -23,10 +23,7 @@ import org.project.openbaton.catalogue.mano.descriptor.VNFDependency;
 import org.project.openbaton.catalogue.mano.descriptor.VirtualNetworkFunctionDescriptor;
 import org.project.openbaton.catalogue.mano.record.NetworkServiceRecord;
 import org.project.openbaton.clients.exceptions.VimDriverException;
-import org.project.openbaton.exceptions.BadFormatException;
-import org.project.openbaton.exceptions.NotFoundException;
-import org.project.openbaton.exceptions.QuotaExceededException;
-import org.project.openbaton.exceptions.VimException;
+import org.project.openbaton.exceptions.*;
 import org.project.openbaton.nfvo.core.interfaces.NetworkServiceDescriptorManagement;
 import org.project.openbaton.nfvo.core.interfaces.NetworkServiceRecordManagement;
 import org.project.openbaton.nfvo.core.interfaces.SecurityManagement;
@@ -66,7 +63,7 @@ public class RestNetworkServiceDescriptor {
      */
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public NetworkServiceDescriptor create(@RequestBody @Valid NetworkServiceDescriptor networkServiceDescriptor) throws NotFoundException, BadFormatException {
+    public NetworkServiceDescriptor create(@RequestBody @Valid NetworkServiceDescriptor networkServiceDescriptor) throws NotFoundException, BadFormatException, NetworkServiceIntegrityException {
         NetworkServiceDescriptor nsd;
         log.trace("Just Received: " + networkServiceDescriptor);
         nsd = networkServiceDescriptorManagement.onboard(networkServiceDescriptor);
@@ -168,9 +165,7 @@ public class RestNetworkServiceDescriptor {
 
     @RequestMapping(value = "{idNsd}/vnfdescriptors/{idVfn}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public VirtualNetworkFunctionDescriptor updateVNF(
-            @RequestBody @Valid VirtualNetworkFunctionDescriptor vnfDescriptor,
-            @PathVariable("idNsd") String idNsd, @PathVariable("idVfn") String idVfn) {
+    public VirtualNetworkFunctionDescriptor updateVNF(         @RequestBody @Valid VirtualNetworkFunctionDescriptor vnfDescriptor,           @PathVariable("idNsd") String idNsd, @PathVariable("idVfn") String idVfn) {
         return networkServiceDescriptorManagement.updateVNF(idNsd, idVfn, vnfDescriptor);
     }
 
@@ -206,9 +201,7 @@ public class RestNetworkServiceDescriptor {
 
     @RequestMapping(value = "{idNsd}/vnfdependencies/", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public VNFDependency postVNFDependency(
-            @RequestBody @Valid VNFDependency vnfDependency,
-            @PathVariable("idNsd") String idNsd) {
+    public VNFDependency postVNFDependency(@RequestBody @Valid VNFDependency vnfDependency, @PathVariable("idNsd") String idNsd) {
         networkServiceDescriptorManagement.saveVNFDependency(idNsd, vnfDependency);
         return vnfDependency;
     }
@@ -280,10 +273,7 @@ public class RestNetworkServiceDescriptor {
      */
     @RequestMapping(value = "{id}/pnfdescriptors/", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public PhysicalNetworkFunctionDescriptor postPhysicalNetworkFunctionDescriptor(
-            @RequestBody @Valid PhysicalNetworkFunctionDescriptor pDescriptor,
-            @PathVariable("id") String id) {
-
+    public PhysicalNetworkFunctionDescriptor postPhysicalNetworkFunctionDescriptor(@RequestBody @Valid PhysicalNetworkFunctionDescriptor pDescriptor, @PathVariable("id") String id) {
         return networkServiceDescriptorManagement.addPnfDescriptor(pDescriptor, id);
     }
 
@@ -298,10 +288,8 @@ public class RestNetworkServiceDescriptor {
      */
     @RequestMapping(value = "{id}/pnfdescriptors/{idPnf}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public PhysicalNetworkFunctionDescriptor updatePNFD(
-            @RequestBody @Valid PhysicalNetworkFunctionDescriptor pDescriptor,
-            @PathVariable("id") String id, @PathVariable("idPnf") String idPnf) {
-        return networkServiceDescriptorManagement.addPnfDescriptor(pDescriptor, id);
+    public PhysicalNetworkFunctionDescriptor updatePNFD(@RequestBody @Valid PhysicalNetworkFunctionDescriptor pDescriptor, @PathVariable("id") String id, @PathVariable("idPnf") String idPnf) {
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     /**
@@ -375,8 +363,7 @@ public class RestNetworkServiceDescriptor {
      */
     @RequestMapping(value = "{id}/security/", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public Security postSecurity(@RequestBody @Valid Security security,
-                                 @PathVariable("id") String id) {
+    public Security postSecurity(@RequestBody @Valid Security security, @PathVariable("id") String id) {
         return networkServiceDescriptorManagement.addSecurity(id, security);
     }
 

@@ -44,20 +44,20 @@ import javax.sql.DataSource;
 @EnableJpaRepositories(basePackageClasses = {NetworkServiceDescriptorRepository.class})
 public class ApplicationTest {
 
+    /**
+     * Testing if the context contains all the needed beans
+     *
+     * @param argv
+     */
+    public static void main(String[] argv) {
+        ConfigurableApplicationContext context = SpringApplication.run(ApplicationTest.class);
+        for (String s : context.getBeanDefinitionNames())
+            System.out.println(s);
+    }
+
     @Bean
     public DataSource dataSource() {
         // instantiate, configure and return embedded DataSource
         return new EmbeddedDatabaseBuilder().build();
-    }
-
-    /**
-     * Testing if the context contains all the needed beans
-     * @param argv
-     */
-    public static void main(String[] argv){
-
-        ConfigurableApplicationContext context = SpringApplication.run(ApplicationTest.class);
-        for (String s : context.getBeanDefinitionNames())
-            System.out.println(s);
     }
 }

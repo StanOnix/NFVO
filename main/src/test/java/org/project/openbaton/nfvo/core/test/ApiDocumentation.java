@@ -9,10 +9,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.project.openbaton.catalogue.mano.common.Security;
-import org.project.openbaton.catalogue.mano.descriptor.NetworkServiceDescriptor;
-import org.project.openbaton.catalogue.mano.descriptor.PhysicalNetworkFunctionDescriptor;
-import org.project.openbaton.catalogue.mano.descriptor.VNFDependency;
-import org.project.openbaton.catalogue.mano.descriptor.VirtualNetworkFunctionDescriptor;
+import org.project.openbaton.catalogue.mano.descriptor.*;
 import org.project.openbaton.nfvo.main.Application;
 import org.project.openbaton.nfvo.repositories.NetworkServiceDescriptorRepository;
 import org.slf4j.Logger;
@@ -105,6 +102,11 @@ public class ApiDocumentation {
 
     private PhysicalNetworkFunctionDescriptor pnfd1, pnfd2;
 
+    private Set<VNFForwardingGraphDescriptor> vnffgd = new HashSet<VNFForwardingGraphDescriptor>();
+    private VNFForwardingGraphDescriptor vnffgd1 = new VNFForwardingGraphDescriptor();
+
+    private Set<VirtualLinkDescriptor> vld = new HashSet<VirtualLinkDescriptor>();
+
 
 
     @Before
@@ -131,10 +133,19 @@ public class ApiDocumentation {
         Set<PhysicalNetworkFunctionDescriptor> pnfd = new HashSet<PhysicalNetworkFunctionDescriptor>();
         Security nsd_security = new Security();
         nsd_security.setVersion(1);
+        vnffgd1.setVersion("1");
+        vnffgd1.setVendor("Fokus");
+        vnffgd1.setDescriptor_version("1");
+        vnffgd.add(vnffgd1);
         nsd.setVnfd(vnfd);
         nsd.setVnf_dependency(vnf_dependency);
         nsd.setPnfd(pnfd);
         nsd.setNsd_security(nsd_security);
+        nsd.setName("nsd1");
+        nsd.setVersion("1");
+        nsd.setVendor("Fokus");
+        nsd.setVnffgd(vnffgd);
+        nsd.setVld(vld);
 
 
         nsd2 = new NetworkServiceDescriptor();
@@ -144,6 +155,10 @@ public class ApiDocumentation {
         nsd2.setVnf_dependency(vnf_dependency);
         nsd2.setPnfd(pnfd);
         nsd2.setNsd_security(nsd_security2);
+        nsd2.setName("nsd2");
+        nsd2.setVersion("1");
+        nsd2.setVendor("Fokus");
+        nsd2.setVnffgd(vnffgd);
 
         vnfd1 = new VirtualNetworkFunctionDescriptor();
         vnfd2 = new VirtualNetworkFunctionDescriptor();
@@ -184,12 +199,18 @@ public class ApiDocumentation {
     public void NSDCreateExample() throws Exception {
         this.document.snippets(
                 requestFields(
+                        fieldWithPath("name").description("The NSD's name"),
+                        fieldWithPath("vendor").description("The vendor of the NSD"),
+                        fieldWithPath("version").description("The NSD's version"),
+                        fieldWithPath("vnffgd").description("An array of VNFForwardingGraphDescriptors"),
+                        fieldWithPath("vld").description("An array of VirtualLinkDescriptors"),
                         fieldWithPath("vnfd").description("An array of VirtualNetworkFunctionDescriptors"),
                         fieldWithPath("vnf_dependency").description("An array of VNFDependencies"),
                         fieldWithPath("pnfd").description("An array of PhysicalNetworkFunctionDescriptors"),
                         fieldWithPath("nsd_security").description("A Security object"),
-                        fieldWithPath("enabled").description("Optional ???"),
-                        fieldWithPath("hb_version").description("???")
+                        fieldWithPath("enabled").description("Is the NSD enabled or not"),
+                        fieldWithPath("hb_version").description("_")
+
                 ),
                 links()
         );
@@ -253,17 +274,17 @@ public class ApiDocumentation {
                         fieldWithPath("name").description("The NetworkServiceDescriptor's name"),
                         fieldWithPath("vnf_dependency").description("???"),
                         fieldWithPath("pnfd").description("An array of PhysicalNetworkFunctionDescriptors"),
-                        fieldWithPath("nsd_security").description("The Security object ???"),
-                        fieldWithPath("hb_version").description("???"),
+                        fieldWithPath("nsd_security").description("The Security object"),
+                        fieldWithPath("hb_version").description("_"),
                         fieldWithPath("vendor").description("The NetworkServiceDescriptor's vendor"),
                         fieldWithPath("version").description("The NetworkServiceDescriptor's version"),
                         fieldWithPath("vnffgd").description("The NSD's VNFForwardingGraphDescriptor"),
                         fieldWithPath("vld").description("The NetworkServiceDescriptor's VirtualLinkDescriptor"),
-                        fieldWithPath("monitoring_parameter").description("???"),
+                        fieldWithPath("monitoring_parameter").description("_"),
                         fieldWithPath("service_deployment_flavour").description("The NetworkServiceDescriptor's ServiceDeploymentFlavour"),
                         fieldWithPath("auto_scale_policy").description("The NetworkServiceDescriptor's AutoScalePolicy"),
                         fieldWithPath("connection_point").description("The NetworkServiceDescriptor's ConnectionPoint"),
-                        fieldWithPath("enabled").description("???"))
+                        fieldWithPath("enabled").description("Is the NSD enabled or not"))
                 );
 
         this.mockMvc.perform(get("/api/v1/ns-descriptors/" + id)).
@@ -432,117 +453,117 @@ public class ApiDocumentation {
 
 
 
-        @Test
-    public void NSDCreatePNFDExample() throws Exception {
-        String createResponse = this.mockMvc.perform(post("/api/v1/ns-descriptors").
-                contentType(MediaType.APPLICATION_JSON_VALUE).
-                content(gson.toJson(nsd))).
-                andExpect(status().isCreated()).
-                andReturn().getResponse().getContentAsString();
-
-        String nsdId = new JSONObject(createResponse).getString("id");
-
-
-        this.mockMvc.perform(post("/api/v1/ns-descriptors/" + nsdId + "/pnfdescriptors/").
-                contentType(MediaType.APPLICATION_JSON_VALUE).
-                content(gson.toJson(pnfd1))).
-                andExpect(status().isCreated());
-    }
-
-
-    @Test
-    public void NSDGetAllPNFDExample() throws Exception {
-        String createResponse = this.mockMvc.perform(post("/api/v1/ns-descriptors").
-                contentType(MediaType.APPLICATION_JSON_VALUE).
-                content(gson.toJson(nsd))).
-                andExpect(status().isCreated()).
-                andReturn().getResponse().getContentAsString();
-
-        String nsdId = new JSONObject(createResponse).getString("id");
-
-
-        this.mockMvc.perform(post("/api/v1/ns-descriptors/" + nsdId + "/pnfdescriptors/").
-                contentType(MediaType.APPLICATION_JSON_VALUE).
-                content(gson.toJson(pnfd1))).
-                andExpect(status().isCreated());
-
-        this.mockMvc.perform(get("/api/v1/ns-descriptors/" + nsdId + "/pnfdescriptors/")).
-                andExpect(status().isAccepted());
-    }
-
-
-
-    @Test
-    public void NSDGetPNFDExample() throws Exception {
-        String createResponse = this.mockMvc.perform(post("/api/v1/ns-descriptors").
-                contentType(MediaType.APPLICATION_JSON_VALUE).
-                content(gson.toJson(nsd))).
-                andExpect(status().isCreated()).
-                andReturn().getResponse().getContentAsString();
-
-        String nsdId = new JSONObject(createResponse).getString("id");
-
-
-        String createPNFDResponse = this.mockMvc.perform(post("/api/v1/ns-descriptors/" + nsdId + "/pnfdescriptors/").
-                contentType(MediaType.APPLICATION_JSON_VALUE).
-                content(gson.toJson(pnfd1))).
-                andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
-
-        String pnfdId = new JSONObject(createPNFDResponse).getString("id");
-
-        this.mockMvc.perform(get("/api/v1/ns-descriptors/" + nsdId + "/pnfdescriptors/" + pnfdId)).
-                andExpect(status().isAccepted());
-    }
-
-
-
-    @Test
-    public void NSDUpdatePNFDExample() throws Exception {
-        String createResponse = this.mockMvc.perform(post("/api/v1/ns-descriptors").
-                contentType(MediaType.APPLICATION_JSON_VALUE).
-                content(gson.toJson(nsd))).
-                andExpect(status().isCreated()).
-                andReturn().getResponse().getContentAsString();
-
-        String nsdId = new JSONObject(createResponse).getString("id");
-
-
-        String createPNFDResponse = this.mockMvc.perform(post("/api/v1/ns-descriptors/" + nsdId + "/pnfdescriptors/").
-                contentType(MediaType.APPLICATION_JSON_VALUE).
-                content(gson.toJson(pnfd1))).
-                andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
-
-        String pnfdId = new JSONObject(createPNFDResponse).getString("id");
-
-        this.mockMvc.perform(put("/api/v1/ns-descriptors/" + nsdId + "/pnfdescriptors/" + pnfdId).
-                contentType(MediaType.APPLICATION_JSON_VALUE).
-                content(gson.toJson(pnfd2))).
-                andExpect(status().isAccepted());
-    }
-
-
-
-    @Test
-    public void NSDDeletePNFDExample() throws Exception {
-        String createResponse = this.mockMvc.perform(post("/api/v1/ns-descriptors").
-                contentType(MediaType.APPLICATION_JSON_VALUE).
-                content(gson.toJson(nsd))).
-                andExpect(status().isCreated()).
-                andReturn().getResponse().getContentAsString();
-
-        String nsdId = new JSONObject(createResponse).getString("id");
-
-
-        String createPNFDResponse = this.mockMvc.perform(post("/api/v1/ns-descriptors/" + nsdId + "/pnfdescriptors/").
-                contentType(MediaType.APPLICATION_JSON_VALUE).
-                content(gson.toJson(pnfd1))).
-                andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
-
-        String pnfdId = new JSONObject(createPNFDResponse).getString("id");
-
-        this.mockMvc.perform(delete("/api/v1/ns-descriptors/" + nsdId + "/pnfdescriptors/" + pnfdId)).
-                andExpect(status().isNoContent());
-    }
+//        @Test
+//    public void NSDCreatePNFDExample() throws Exception {
+//        String createResponse = this.mockMvc.perform(post("/api/v1/ns-descriptors").
+//                contentType(MediaType.APPLICATION_JSON_VALUE).
+//                content(gson.toJson(nsd))).
+//                andExpect(status().isCreated()).
+//                andReturn().getResponse().getContentAsString();
+//
+//        String nsdId = new JSONObject(createResponse).getString("id");
+//
+//
+//        this.mockMvc.perform(post("/api/v1/ns-descriptors/" + nsdId + "/pnfdescriptors/").
+//                contentType(MediaType.APPLICATION_JSON_VALUE).
+//                content(gson.toJson(pnfd1))).
+//                andExpect(status().isCreated());
+//    }
+//
+//
+//    @Test
+//    public void NSDGetAllPNFDExample() throws Exception {
+//        String createResponse = this.mockMvc.perform(post("/api/v1/ns-descriptors").
+//                contentType(MediaType.APPLICATION_JSON_VALUE).
+//                content(gson.toJson(nsd))).
+//                andExpect(status().isCreated()).
+//                andReturn().getResponse().getContentAsString();
+//
+//        String nsdId = new JSONObject(createResponse).getString("id");
+//
+//
+//        this.mockMvc.perform(post("/api/v1/ns-descriptors/" + nsdId + "/pnfdescriptors/").
+//                contentType(MediaType.APPLICATION_JSON_VALUE).
+//                content(gson.toJson(pnfd1))).
+//                andExpect(status().isCreated());
+//
+//        this.mockMvc.perform(get("/api/v1/ns-descriptors/" + nsdId + "/pnfdescriptors/")).
+//                andExpect(status().isAccepted());
+//    }
+//
+//
+//
+//    @Test
+//    public void NSDGetPNFDExample() throws Exception {
+//        String createResponse = this.mockMvc.perform(post("/api/v1/ns-descriptors").
+//                contentType(MediaType.APPLICATION_JSON_VALUE).
+//                content(gson.toJson(nsd))).
+//                andExpect(status().isCreated()).
+//                andReturn().getResponse().getContentAsString();
+//
+//        String nsdId = new JSONObject(createResponse).getString("id");
+//
+//
+//        String createPNFDResponse = this.mockMvc.perform(post("/api/v1/ns-descriptors/" + nsdId + "/pnfdescriptors/").
+//                contentType(MediaType.APPLICATION_JSON_VALUE).
+//                content(gson.toJson(pnfd1))).
+//                andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+//
+//        String pnfdId = new JSONObject(createPNFDResponse).getString("id");
+//
+//        this.mockMvc.perform(get("/api/v1/ns-descriptors/" + nsdId + "/pnfdescriptors/" + pnfdId)).
+//                andExpect(status().isAccepted());
+//    }
+//
+//
+//
+//    @Test
+//    public void NSDUpdatePNFDExample() throws Exception {
+//        String createResponse = this.mockMvc.perform(post("/api/v1/ns-descriptors").
+//                contentType(MediaType.APPLICATION_JSON_VALUE).
+//                content(gson.toJson(nsd))).
+//                andExpect(status().isCreated()).
+//                andReturn().getResponse().getContentAsString();
+//
+//        String nsdId = new JSONObject(createResponse).getString("id");
+//
+//
+//        String createPNFDResponse = this.mockMvc.perform(post("/api/v1/ns-descriptors/" + nsdId + "/pnfdescriptors/").
+//                contentType(MediaType.APPLICATION_JSON_VALUE).
+//                content(gson.toJson(pnfd1))).
+//                andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+//
+//        String pnfdId = new JSONObject(createPNFDResponse).getString("id");
+//
+//        this.mockMvc.perform(put("/api/v1/ns-descriptors/" + nsdId + "/pnfdescriptors/" + pnfdId).
+//                contentType(MediaType.APPLICATION_JSON_VALUE).
+//                content(gson.toJson(pnfd2))).
+//                andExpect(status().isAccepted());
+//    }
+//
+//
+//
+//    @Test
+//    public void NSDDeletePNFDExample() throws Exception {
+//        String createResponse = this.mockMvc.perform(post("/api/v1/ns-descriptors").
+//                contentType(MediaType.APPLICATION_JSON_VALUE).
+//                content(gson.toJson(nsd))).
+//                andExpect(status().isCreated()).
+//                andReturn().getResponse().getContentAsString();
+//
+//        String nsdId = new JSONObject(createResponse).getString("id");
+//
+//
+//        String createPNFDResponse = this.mockMvc.perform(post("/api/v1/ns-descriptors/" + nsdId + "/pnfdescriptors/").
+//                contentType(MediaType.APPLICATION_JSON_VALUE).
+//                content(gson.toJson(pnfd1))).
+//                andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+//
+//        String pnfdId = new JSONObject(createPNFDResponse).getString("id");
+//
+//        this.mockMvc.perform(delete("/api/v1/ns-descriptors/" + nsdId + "/pnfdescriptors/" + pnfdId)).
+//                andExpect(status().isNoContent());
+//    }
 
 
 }

@@ -1,4 +1,4 @@
-= RestConfiguration API
+= NFVO API
 :doctype: book
 :toc:
 :sectanchors:
@@ -6,136 +6,14 @@
 :toclevels: 4
 :source-highlighter: highlightjs
 
-[[overview]]
-= Overview
 
-TODO
-include::{snippets}/test/http-response.adoc[]
-
-= Resources
-
-[[resources-Configuration]]
-== Configuration
-
-A Configuration is used to ... TODO
-
-=== Adding a Configuration
-
-TODO
-
-==== Response structure
-
-TODO
-
-=== Removing a Configuration
-
-TODO
-
-==== Response structure
-
-TODO
-
-=== Accessing all Configurations
-
-TODO
-
-==== Response structure
-
-TODO
-
-=== Accessing a specific Configuration
-
-TODO
-
-==== Response structure
-
-TODO
-
-=== Updating a Configuration
-
-TODO
-
-==== Response structure
-
-TODO
-
-[[resources-Event]]
-== Event
-
-TODO
-
-=== Adding an Event
-
-TODO
-
-==== Response structure
-
-TODO
-
-=== Removing an Event
-
-TODO
-
-==== Response structure
-
-TODO
-
-=== Accessing all Events
-
-TODO
-
-==== Response structure
-
-TODO
-
-[[resources-Image]]
-== Image
-
-TODO
-
-=== Adding an Image
-
-TODO
-
-==== Response structure
-
-TODO
-
-=== Removing an Image
-
-TODO
-
-==== Response structure
-
-TODO
-
-=== Accessing all Images
-
-TODO
-
-==== Response structure
-
-TODO
-
-=== Accessing a specific Image
-
-TODO
-
-==== Response structure
-
-TODO
-
-=== Updating an Image
-
-TODO
-
-==== Response structure
-
-TODO
 
 [[resources-NetworkServiceDescriptor]]
 == NetworkServiceDescriptor
 
+=== Overview
+
+The NSD describes deployment flavours of a Network Service.
 
 === Adding a NetworkServiceDescriptor
 
@@ -151,9 +29,6 @@ include::{snippets}/-n-s-d-create-example/curl-request.adoc[]
 
 include::{snippets}/-n-s-d-create-example/http-response.adoc[]
 
-==== Links
-
-include::{snippets}/-n-s-d-create-example/links.adoc[]
 
 
 === Retrieving all NetworkServiceDescriptors
@@ -297,122 +172,4 @@ A VNFD is deleted by a `DELETE` request like this:
 include::{snippets}/-n-s-d-delete-v-n-f-d-example/http-response.adoc[]
 
 
-== VNFDependencies
 
-=== Adding a VNFDependency
-
-AVNFDependency is added by using a `POST` request like this:
-
-'/api/v1/ns-descriptors/{nsdId}/vnfdependencies/'
-
-The VNFDependency should be in the request's body.
-
-
-=== Retrieving all VNFDependency
-
-One can det all AVNFDependencies by using a `GET` request like this:
-
-'/api/v1/ns-descriptors/{nsdId}/vnfdependencies/'
-
-
-=== Retrieving a VNFDependency
-
-A specific AVNFDependency can be retrieved by using a `GET` request like this:
-
-'/api/v1/ns-descriptors/{nsdId}/vnfdependencies/{vnfdependencyId}'
-
-
-=== Updating a VNFDependency
-
-AVNFDependency is updated by using a `PUT` request like this:
-
-'/api/v1/ns-descriptors/{nsdId}/vnfdependencies/{vnfdependencyId}'
-
-The new VNFDependency should be in the request's body.
-
-
-=== Removing a VNFDependency
-
-AVNFDependency is removed by using a `DELETE` request like this:
-
-'/api/v1/ns-descriptors/{nsdId}/vnfdependencies/{vnfdependencyId}'
-
-
-
-== PhysicalNetworkFunktionDescriptor
-
-=== Adding a PhysicalNetworkFunktionDescriptor
-
-==== Example Request
-
-include::{snippets}/-n-s-d-create-p-n-f-d-example/curl-request.adoc[]
-
-==== Example Response
-
-include::{snippets}/-n-s-d-create-p-n-f-d-example/http-response.adoc[]
-
-=== Retrieving all PhysicalNetworkFunktionDescriptors
-
-==== Example Request
-
-include::{snippets}/-n-s-d-get-all-p-n-f-d-example/curl-request.adoc[]
-
-==== Example Response
-
-include::{snippets}/-n-s-d-get-all-p-n-f-d-example/http-response.adoc[]
-
-=== Retrieving a PhysicalNetworkFunktionDescriptor
-
-==== Example Request
-
-include::{snippets}/-n-s-d-get-p-n-f-d-example/curl-request.adoc[]
-
-==== Example Response
-
-include::{snippets}/-n-s-d-get-p-n-f-d-example/http-response.adoc[]
-
-=== Updating a PhysicalNetworkFunktionDescriptor
-
-==== Example Request
-
-include::{snippets}/-n-s-d-update-p-n-f-d-example/curl-request.adoc[]
-
-==== Example Response
-
-include::{snippets}/-n-s-d-update-p-n-f-d-example/http-response.adoc[]
-
-=== Deleting a PhysicalNetworkFunktionDescriptor
-
-==== Example Request
-
-include::{snippets}/-n-s-d-delete-p-n-f-d-example/curl-request.adoc[]
-
-==== Example Response
-
-include::{snippets}/-n-s-d-delete-p-n-f-d-example/http-response.adoc[]
-
-
-[[resources-NetworkServiceRecord]]
-== NetworkServiceRecord
-
-TODO
-
-[[resources-VimInstance]]
-== VimInstance
-
-TODO
-
-[[resources-VirtualLink]]
-== VirtualLink
-
-TODO
-
-[[resources-VNFFG]]
-== VNFFG
-
-TODO
-
-[[resources-VNFPackage]]
-== VNFPackage
-
-TODO
