@@ -17,9 +17,7 @@
 package org.project.openbaton.nfvo.security;
 
 import org.project.openbaton.catalogue.security.User;
-import org.project.openbaton.nfvo.repositories_interfaces.GenericRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,8 +31,7 @@ import java.util.List;
 @Component
 public class CustomUserDetailsService implements UserDetailsService {
 	@Autowired
-    @Qualifier("userRepository")
-	private GenericRepository<User> userRepository;
+	private UserRepository userRepository;
 
 	@Override
 	public UserDetails loadUserByUsername(String username)
