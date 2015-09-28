@@ -60,6 +60,7 @@ dependencies {
     testCompile 'org.springframework.restdocs:spring-restdocs-core:1.0.0.RC1'   //doc
     testCompile 'com.google.code.gson:gson:1.7.2'   //doc
     testCompile 'org.json:json:20090211'    //doc
+    testRuntime project(':api')
 
 }
 

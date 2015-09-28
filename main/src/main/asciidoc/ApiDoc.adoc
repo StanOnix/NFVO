@@ -15,81 +15,95 @@
 
 The NSD describes deployment flavours of a Network Service.
 
+
 === Adding a NetworkServiceDescriptor
+
+`POST` request with NSD as JSON content of the request body +
+{host}/api/v1/ns-descriptors
 
 ==== Request structure
 
-include::{snippets}/-n-s-d-create-example/request-fields.adoc[]
+include::{snippets}/nsd-create-example/request-fields.adoc[]
 
 ==== Example request
 
-include::{snippets}/-n-s-d-create-example/curl-request.adoc[]
+include::{snippets}/nsd-create-example/curl-request.adoc[]
 
 ==== Example response
 
-include::{snippets}/-n-s-d-create-example/http-response.adoc[]
+include::{snippets}/nsd-create-example/http-response.adoc[]
 
 
 
 === Retrieving all NetworkServiceDescriptors
 
-To get all NetworkServiceDescriptors a `GET` request is used.
+`GET` request +
+{host}/api/v1/ns-descriptors
 
 ==== Response structure
 
-include::{snippets}/-n-s-d-get-all-example/response-fields.adoc[]
+include::{snippets}/nsd-get-all-example/response-fields.adoc[]
 
 ==== Example request
 
-include::{snippets}/-n-s-d-get-all-example/curl-request.adoc[]
+include::{snippets}/nsd-get-all-example/curl-request.adoc[]
 
 ==== Example response
 
-include::{snippets}/-n-s-d-get-all-example/http-response.adoc[]
+include::{snippets}/nsd-get-all-example/http-response.adoc[]
 
 
 === Retrieving a NetworkServiceDescriptor
 
-To get a NetworkServiceDescriptors a `GET` request is used with the NSD's id in the url.
+`GET` request +
+the id used in the url belongs to the NSD
+{host}/api/v1/ns-descriptors/{nsdId}
 
 ==== Response structure
 
-include::{snippets}/-n-s-d-get-example/response-fields.adoc[]
+include::{snippets}/nsd-get-example/response-fields.adoc[]
 
 ==== Example request
 
-include::{snippets}/-n-s-d-get-example/curl-request.adoc[]
+include::{snippets}/nsd-get-example/curl-request.adoc[]
 
 ==== Example response
 
-include::{snippets}/-n-s-d-get-example/http-response.adoc[]
+include::{snippets}/nsd-get-example/http-response.adoc[]
 
 
 === Updating a NetworkServiceDescriptor
 
-To update a NSD a `PUT` request is used with the id of the NSD to update.
-In the request's body the new NSD is sent.
+`PUT` request with updated NSD as JSON content in request body +
+the id in the url belongs to the NSD to update +
+{host}/api/v1/ns-descriptors/{nsdId}
+
+==== Request structure
+
+include::{snippets}/nsd-update-example/request-fields.adoc[]
 
 ==== Example request
 
-include::{snippets}/-n-s-d-update-example/curl-request.adoc[]
+include::{snippets}/nsd-update-example/curl-request.adoc[]
 
 ==== Example response
 
-include::{snippets}/-n-s-d-update-example/http-response.adoc[]
+include::{snippets}/nsd-update-example/http-response.adoc[]
 
 
 === Removing a NetworkServiceDescriptor
 
-A NetworkServiceDescriptor is removed by using a `DELETE` request with the NSD's specific id.
+`DELETE` request +
+the id in the url belongs to the NSD to delete +
+{host}/api/v1/ns-descriptors{nsdId}
 
 ==== Example request
 
-include::{snippets}/-n-s-d-delete-example/curl-request.adoc[]
+include::{snippets}/nsd-delete-example/curl-request.adoc[]
 
 ==== Example response
 
-include::{snippets}/-n-s-d-delete-example/http-response.adoc[]
+include::{snippets}/nsd-delete-example/http-response.adoc[]
 
 
 [[resource-VirtualNetworkFunctionDescriptor]]
@@ -98,78 +112,365 @@ include::{snippets}/-n-s-d-delete-example/http-response.adoc[]
 
 === Adding a VirtualNetworkFunctionDescriptor to a NSD
 
-A VNFD is added to a NSD by executing a `POST` request like this
-'/api/v1/ns-descriptors/{nsdId}/vnfdescriptors/'.
+`POST` request with VNFD as JSON content of the request body +
+the id in the url belongs to the NSD to which the VNFD shall be added +
+{host}/api/v1/ns-descriptors{nsdId}/vnfdescriptors/
+
+==== Request structure
+
+include::{snippets}/nsd-create-v-n-f-d-example/request-fields.adoc[]
 
 ==== Example request
 
-include::{snippets}/-n-s-d-create-v-n-f-d-example/curl-request.adoc[]
+include::{snippets}/nsd-create-v-n-f-d-example/curl-request.adoc[]
 
 ==== Example response
 
-include::{snippets}/-n-s-d-create-v-n-f-d-example/http-response.adoc[]
+include::{snippets}/nsd-create-v-n-f-d-example/http-response.adoc[]
 
 
 === Retrieving all VirtualNetworkFunctionDescriptors
 
-The VirtualNetworkFunctionDescriptors are accessable through a `GET` request like
+`GET` request +
+the id in the url belongs to the NSD from which the VNFDs shall be retrieved +
+{host}/api/v1/ns-descriptors/{nsdId}/vnfdescriptors/
 
-'/api/v1/ns-descriptors/{nsdId}/vnfdescriptors/'.
+==== Response structure
 
-==== Example request
-
-include::{snippets}/-n-s-d-get-all-v-n-f-d-example/curl-request.adoc[]
-
-==== Example response
-
-include::{snippets}/-n-s-d-get-all-v-n-f-d-example/http-response.adoc[]
-
-
-=== Retrieving a VirtualNetworkFunctionDescriptors
-
-One can get a VirtualNetworkFunctionDescriptor by using a `GET` request like this:
-
-'/api/v1/ns-descriptors/{nsdId}/vnfdescriptors/{vnfdId}'.
+include::{snippets}/nsd-get-all-v-n-f-d-example/response-fields.adoc[]
 
 ==== Example request
 
-include::{snippets}/-n-s-d-get-v-n-f-d-example/curl-request.adoc[]
+include::{snippets}/nsd-get-all-v-n-f-d-example/curl-request.adoc[]
 
 ==== Example response
 
-include::{snippets}/-n-s-d-get-v-n-f-d-example/http-response.adoc[]
+include::{snippets}/nsd-get-all-v-n-f-d-example/http-response.adoc[]
+
+
+=== Retrieving a VirtualNetworkFunctionDescriptor
+
+`GET` request +
+the first id in the url belongs to the NSD that contains the VNFD +
+the second id in the url belongs to the requested VNFD +
+{host}/api/v1/ns-descriptors/{nsdId}/vnfdescriptors/{vnfdId}
+
+==== Response structure
+
+include::{snippets}/nsd-get-v-n-f-d-example/response-fields.adoc[]
+
+==== Example request
+
+include::{snippets}/nsd-get-v-n-f-d-example/curl-request.adoc[]
+
+==== Example response
+
+include::{snippets}/nsd-get-v-n-f-d-example/http-response.adoc[]
 
 
 === Updating a VirtualNetworkFunctionDescriptor
 
-A VNFD is updated by a `PUT` request like this:
+`PUT` request with updated VNFD as JSON content in request body +
+the first id in the url belongs to the nsd containing the VNFD +
+the second id in the url belongs to the VNFD that shall be updated +
+{host}/api/v1/ns-descriptors/{nsdId}/vnfdescriptors/{vnfdId}
 
-'/api/v1/ns-descriptors/{nsdId}/vnfdescriptors/{vnfdId}'
+==== Request structure
 
-The updated VNFD has to be in the request's body.
+include::{snippets}/nsd-update-v-n-f-d-example/request-fields.adoc[]
 
 ==== Example request
 
-include::{snippets}/-n-s-d-update-v-n-f-d-example/curl-request.adoc[]
+include::{snippets}/nsd-update-v-n-f-d-example/curl-request.adoc[]
 
 ==== Example response
 
-include::{snippets}/-n-s-d-update-v-n-f-d-example/http-response.adoc[]
+include::{snippets}/nsd-update-v-n-f-d-example/http-response.adoc[]
 
 
 === Removing a VirtualNetworkFunctionDescriptor
 
-A VNFD is deleted by a `DELETE` request like this:
-
-'/api/v1/ns-descriptors/{nsdId}/vnfdescriptors/{vnfdId}'
+`DELETE` request +
+the first id in the url belongs to the NSD that contains the VNFD +
+the secind id belongs to the VNFD to be deleted +
+{host}/api/v1/ns-descriptors/{nsdId}/vnfdescriptors/{vnfdId}
 
 ==== Example request
 
-       include::{snippets}/-n-s-d-delete-v-n-f-d-example/curl-request.adoc[]
+include::{snippets}/nsd-delete-v-n-f-d-example/curl-request.adoc[]
 
 ==== Example response
 
-include::{snippets}/-n-s-d-delete-v-n-f-d-example/http-response.adoc[]
+include::{snippets}/nsd-delete-v-n-f-d-example/http-response.adoc[]
 
 
 
+[[resources-NetworkServiceRecord]]
+== NetworkServiceRecord
+
+=== Deploying a NetworkServiceRecord from a new NSD
+
+`POST` request with a <<resources-NetworkServiceDescriptor,NSD>> as JSON content of the request body +
+{host}/api/v1/ns-records/
+
+==== Request structure
+
+include::{snippets}/nsr-create-example/request-fields.adoc[]
+
+==== Example request
+
+include::{snippets}/nsr-create-example/curl-request.adoc[]
+
+==== Example response
+
+include::{snippets}/nsr-create-example/http-response.adoc[]
+
+
+=== Deploying a NetworkServiceRecord from an existing NSD
+
+`POST` request +
+the id in the url belongs to the <<resources-NetworkServiceDescriptor,NSD>> from which the NSR should be created +
+{host}/api/v1/ns-records/{nsdId}
+
+==== Request structure
+
+include::{snippets}/nsr-create-with-id-example/request-fields.adoc[]
+
+==== Example request
+
+include::{snippets}/nsr-create-with-id-example/curl-request.adoc[]
+
+==== Example response
+
+include::{snippets}/nsr-create-with-id-example/http-response.adoc[]
+
+
+
+=== Retrieving all NetworkServiceRecords
+
+`GET` request +
+{host}/api/v1/ns-records/
+
+==== Response structure
+
+include::{snippets}/nsr-get-all-example/response-fields.adoc[]
+
+==== Example request
+
+include::{snippets}/nsr-get-all-example/curl-request.adoc[]
+
+==== Example response
+
+include::{snippets}/nsr-get-all-example/http-response.adoc[]
+
+
+
+=== Retrieving a NetworkServiceRecord
+
+`GET` request +
+the id in the url belongs to the NSR that should be retrieved
+{host}/api/v1/ns-records/{nsrId}
+
+==== Response structure
+
+include::{snippets}/nsr-get-example/response-fields.adoc[]
+
+==== Example request
+
+include::{snippets}/nsr-get-example/curl-request.adoc[]
+
+==== Example response
+TODO scheint nicht zu stimmen
+include::{snippets}/nsr-get-example/http-response.adoc[]
+
+
+
+=== Updating a NetworkServiceRecord
+
+`PUT` request with the updated NSR as JSON content in the request body +
+the id in the url belongs to the NSR that shall be updated +
+{host}/api/v1/ns-records/{nsrId}
+
+==== Request structure
+
+include::{snippets}/nsr-update-example/request-fields.adoc[]
+
+==== Example request
+
+include::{snippets}/nsr-update-example/curl-request.adoc[]
+
+==== Example response
+
+include::{snippets}/nsr-update-example/http-response.adoc[]
+
+
+
+=== Removing a NetworkServiceRecord
+
+`DELETE` request +
+the id in the url belongs to the NSR that shall be deleted +
+{host}/api/v1/ns-records/{nsrId}
+
+==== Example request
+
+TODO
+
+==== Example response
+
+TODO
+
+
+
+[[resources-VirtualNetworkFunctionRecord]]
+== VirtualNetworkFunctionRecords
+
+
+=== Retrieving all VirtualNetworkFunctionRecords from a <<resources-NetworkServiceRecord,NSR>>
+
+`GET` request +
+the id in the url belongs to the NSR from which the VNFRs shall be retrieved +
+{host}/api/v1/ns-records/{nsrId}/vnfrecords
+
+==== Response structure
+
+include::{snippets}/nsr--get-all-vnfr-example/response-fields.adoc[]
+
+==== Example request
+
+include::{snippets}/nsr-get-all-vnfr-example/curl-request.adoc[]
+
+==== Example response
+
+include::{snippets}/nsr-get-all-vnfr-example/http-response.adoc[]
+
+
+=== Retrieving a VirtualNetworkFunctionRecord from a <<resources-NetworkServiceRecord,NSR>>
+
+`GET` request +
+the first id in the url belongs to the NSR from which the VNFR shall be retrieved +
+the second id in the url specifies the wanted VNFR +
+{host}/api/v1/ns-records/{nsrId}/vnfrecords/{vnfrId}
+
+==== Response structure
+
+include::{snippets}/nsr--get-vnfr-example/response-fields.adoc[]
+
+==== Example request
+
+include::{snippets}/nsr-get-vnfr-example/curl-request.adoc[]
+
+==== Example response
+TODO geht nicht
+include::{snippets}/nsr-get-vnfr-example/http-response.adoc[]
+
+
+=== Deleting a VirtualNetworkFunctionRecord from a <<resources-NetworkServiceRecord,NSR>>
+
+`DELETE` request +
+the first id in the url belongs to the NSR from which the VNFR shall be deleted +
+the second id in the url speciefies the VNFR that shall be deleted +
+{host}/api/v1/ns-records/{nsrId}/vnfrecords/{vnfrId}
+
+==== Example request
+
+include::{snippets}/nsr-delete-vnfr-example/curl-request.adoc[]
+
+==== Example response
+
+include::{snippets}/nsr-delete-vnfr-example/http-response.adoc[]
+
+
+
+[[resources-VimInstance]]
+== VimInstance
+
+
+=== Adding a VimInstance
+
+`POST` request with a VimInstance as JSON content in the request body +
+{host}/api/v1/datacenters
+
+==== Request structure
+
+include::{snippets}/vim-instance-create-example/request-fields.adoc[]
+
+==== Example request
+
+include::{snippets}/vim-instance-create-example/curl-request.adoc[]
+
+==== Example response
+
+include::{snippets}/vim-instance-create-example/http-response.adoc[]
+
+
+
+=== Retrieving all VimInstances
+
+`GET` request +
+{host}/api/v1/datacenters
+
+==== Response structure
+
+include::{snippets}/vim-instance-get-all-example/response-fields.adoc[]
+
+==== Example request
+
+include::{snippets}/vim-instance-get-all-example/curl-request.adoc[]
+
+==== Example response
+
+include::{snippets}/vim-instance-get-all-example/http-response.adoc[]
+
+
+
+=== Retrieving a VimInstance
+
+`GET` request +
+the id in the url belongs to the VimInstance
+{host}/api/v1/datacenters/{vId} +
+
+==== Response structure
+
+include::{snippets}/vim-instance-get-example/response-fields.adoc[]
+
+==== Example request
+
+include::{snippets}/vim-instance-get-example/curl-request.adoc[]
+
+==== Example response
+
+include::{snippets}/vim-instance-get-example/http-response.adoc[]
+
+
+=== Updating a VimInstance
+
+`PUT` request with an updated VimInstance as JSON content in the request body +
+the id in the url belongs to the VimInstance to update
+{host}/api/v1/datacenters/{vId}
+
+==== Response structure
+
+include::{snippets}/vim-instance-update-example/response-fields.adoc[]
+
+==== Example request
+
+include::{snippets}/vim-instance-update-example/curl-request.adoc[]
+
+==== Example response
+
+include::{snippets}/vim-instance-update-example/http-response.adoc[]
+
+
+=== Removing a VimInstances
+
+`DELETE` request +
+the id in the url belongs to the VimInstance that shall be deleted
+{host}/api/v1/datacenters/{vId}
+
+==== Example request
+
+include::{snippets}/vim-instance-delete-example/curl-request.adoc[]
+
+==== Example response
+
+include::{snippets}/vim-instance-delete-example/http-response.adoc[]
