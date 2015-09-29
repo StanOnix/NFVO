@@ -56,7 +56,7 @@ include::{snippets}/nsd-get-all-example/http-response.adoc[]
 === Retrieving a NetworkServiceDescriptor
 
 `GET` request +
-the id used in the url belongs to the NSD
+the id used in the url belongs to the NSD +
 {host}/api/v1/ns-descriptors/{nsdId}
 
 ==== Response structure
@@ -106,9 +106,15 @@ include::{snippets}/nsd-delete-example/curl-request.adoc[]
 include::{snippets}/nsd-delete-example/http-response.adoc[]
 
 
-[[resource-VirtualNetworkFunctionDescriptor]]
+[[resources-VirtualNetworkFunctionDescriptor]]
 == VirtualNetworkFunctionDescriptor
 
+=== Overview
+
+A VNF Descriptor (VNFD) is a deployment template which describes a VNF in terms of deployment and operational
+behaviour requirements. The VNFD also contains connectivity and interface  requirements that can be used
+to establish appropriate Virtual Links between the VirtualNetworkFunctionComponents of the VNF or from the
+VNF to another one.
 
 === Adding a VirtualNetworkFunctionDescriptor to a NSD
 
@@ -208,6 +214,10 @@ include::{snippets}/nsd-delete-v-n-f-d-example/http-response.adoc[]
 [[resources-NetworkServiceRecord]]
 == NetworkServiceRecord
 
+=== Overview
+
+TODO
+
 === Deploying a NetworkServiceRecord from a new NSD
 
 `POST` request with a <<resources-NetworkServiceDescriptor,NSD>> as JSON content of the request body +
@@ -268,7 +278,7 @@ include::{snippets}/nsr-get-all-example/http-response.adoc[]
 === Retrieving a NetworkServiceRecord
 
 `GET` request +
-the id in the url belongs to the NSR that should be retrieved
+the id in the url belongs to the NSR that should be retrieved +
 {host}/api/v1/ns-records/{nsrId}
 
 ==== Response structure
@@ -280,7 +290,7 @@ include::{snippets}/nsr-get-example/response-fields.adoc[]
 include::{snippets}/nsr-get-example/curl-request.adoc[]
 
 ==== Example response
-TODO scheint nicht zu stimmen
+
 include::{snippets}/nsr-get-example/http-response.adoc[]
 
 
@@ -307,23 +317,30 @@ include::{snippets}/nsr-update-example/http-response.adoc[]
 
 === Removing a NetworkServiceRecord
 
+A NSR can just be removed, if its state is `ACTIVE` or `ERROR`. +
+
 `DELETE` request +
 the id in the url belongs to the NSR that shall be deleted +
 {host}/api/v1/ns-records/{nsrId}
 
 ==== Example request
 
-TODO
+include::{snippets}/nsr-delete-example/curl-request.adoc[]
 
 ==== Example response
 
-TODO
+include::{snippets}/nsr-delete-example/http-response.adoc[]
+
 
 
 
 [[resources-VirtualNetworkFunctionRecord]]
 == VirtualNetworkFunctionRecords
 
+=== Overview
+
+Following instantiation, a Virtualised Network Function Record
+will be created to index the virtualised resources allocated to each VNF instance.
 
 === Retrieving all VirtualNetworkFunctionRecords from a <<resources-NetworkServiceRecord,NSR>>
 
@@ -333,7 +350,7 @@ the id in the url belongs to the NSR from which the VNFRs shall be retrieved +
 
 ==== Response structure
 
-include::{snippets}/nsr--get-all-vnfr-example/response-fields.adoc[]
+include::{snippets}/nsr-get-all-vnfr-example/response-fields.adoc[]
 
 ==== Example request
 
@@ -353,14 +370,14 @@ the second id in the url specifies the wanted VNFR +
 
 ==== Response structure
 
-include::{snippets}/nsr--get-vnfr-example/response-fields.adoc[]
+include::{snippets}/nsr-get-vnfr-example/response-fields.adoc[]
 
 ==== Example request
 
 include::{snippets}/nsr-get-vnfr-example/curl-request.adoc[]
 
 ==== Example response
-TODO geht nicht
+
 include::{snippets}/nsr-get-vnfr-example/http-response.adoc[]
 
 
@@ -384,6 +401,9 @@ include::{snippets}/nsr-delete-vnfr-example/http-response.adoc[]
 [[resources-VimInstance]]
 == VimInstance
 
+=== Overview
+
+TODO
 
 === Adding a VimInstance
 
@@ -448,9 +468,9 @@ include::{snippets}/vim-instance-get-example/http-response.adoc[]
 the id in the url belongs to the VimInstance to update
 {host}/api/v1/datacenters/{vId}
 
-==== Response structure
+==== Request structure
 
-include::{snippets}/vim-instance-update-example/response-fields.adoc[]
+include::{snippets}/vim-instance-update-example/request-fields.adoc[]
 
 ==== Example request
 
@@ -464,7 +484,7 @@ include::{snippets}/vim-instance-update-example/http-response.adoc[]
 === Removing a VimInstances
 
 `DELETE` request +
-the id in the url belongs to the VimInstance that shall be deleted
+the id in the url belongs to the VimInstance that shall be deleted +
 {host}/api/v1/datacenters/{vId}
 
 ==== Example request
@@ -474,3 +494,90 @@ include::{snippets}/vim-instance-delete-example/curl-request.adoc[]
 ==== Example response
 
 include::{snippets}/vim-instance-delete-example/http-response.adoc[]
+
+
+
+
+[[resources-VNFPackage]]
+== VNFPackage
+
+=== Overview
+
+TODO
+
+=== Adding a VNFPackage
+
+`POST` request +
+the request parameter 'file' specifies an archive which is needed to instantiate a VNFPackage from it +
+to get information about how this archive has to look like please read the documentation about the VNFPackage under following link (not there yet) +
+{host}/api/v1/vnf-packages?file={archive}
+
+
+=== Retrieving all VNFPackages
+
+`GET` request +
+{host}/api/v1/vnf-packages
+
+==== Example request
+
+include::{snippets}/vnfpackage-get-all-example/curl-request.adoc[]
+
+
+=== Retrieving a VNFPackage
+
+`GET` request +
+the id in the request belongs to the VNFPackage +
+{host}/api/v1/vnf-packages/{vnfpId}
+
+
+=== Updating a VNFPackage
+
+`PUT` request with the updated VNFPackage as a JSON object in the request body +
+the id in the request belongs to the VNFPackage +
+{host}/api/v1/vnf-packages/{vnfpId}
+
+
+
+=== Removing a VNFPackage
+
+`DELETE` request +
+the id in the request belongs to the VNFPackage that shall be deleted +
+{host}/api/v1/vnf-packages/{vnfpId}
+
+
+== Other Components
+
+
+[[components-VNFRecordDependency]]
+=== VNFRecordDependency
+
+Describe dependencies between VNFs. Defined in terms of
+source and target VNF, i.e. target VNF "depends on" source
+VNF.
+
+
+[[components-VirtualLinkRecord]]
+=== VirtualLinkRecord
+
+A record of the resources used to implement a virtual network link
+
+
+[[components-NFVImage]]
+=== NFVImage
+
+
+[[components-LifecycleEvent]]
+=== LifecycleEvent
+
+Define fuctional scripts or workflows for specific
+lifecycle events (e.g. initialization, termination, scaling) of a Networkservice.
+
+
+[[components-VirtualNetworkFunctionManager]]
+=== VirtualNetworkFunctionManager
+
+The VNF Manager is responsible for the lifecycle management of VNF instances.
+
+
+[[components-VirtualDeploymentUnit]]
+=== VirtualDeploymentUnit
