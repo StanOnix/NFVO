@@ -216,7 +216,8 @@ include::{snippets}/nsd-delete-v-n-f-d-example/http-response.adoc[]
 
 === Overview
 
-TODO
+Please look at the specification at +
+http://www.etsi.org/deliver/etsi_gs/NFV-MAN/001_099/001/01.01.01_60/gs_NFV-MAN001v010101p.pdf
 
 === Deploying a NetworkServiceRecord from a new NSD
 
@@ -403,7 +404,8 @@ include::{snippets}/nsr-delete-vnfr-example/http-response.adoc[]
 
 === Overview
 
-TODO
+Please look at the specification at +
+http://www.etsi.org/deliver/etsi_gs/NFV-MAN/001_099/001/01.01.01_60/gs_NFV-MAN001v010101p.pdf
 
 === Adding a VimInstance
 
@@ -503,7 +505,8 @@ include::{snippets}/vim-instance-delete-example/http-response.adoc[]
 
 === Overview
 
-TODO
+Please look at the specification at +
+http://www.etsi.org/deliver/etsi_gs/NFV-MAN/001_099/001/01.01.01_60/gs_NFV-MAN001v010101p.pdf
 
 === Adding a VNFPackage
 
@@ -565,6 +568,9 @@ A record of the resources used to implement a virtual network link
 [[components-NFVImage]]
 === NFVImage
 
+Please look at the specification at +
+http://www.etsi.org/deliver/etsi_gs/NFV-MAN/001_099/001/01.01.01_60/gs_NFV-MAN001v010101p.pdf
+
 
 [[components-LifecycleEvent]]
 === LifecycleEvent
@@ -581,3 +587,6 @@ The VNF Manager is responsible for the lifecycle management of VNF instances.
 
 [[components-VirtualDeploymentUnit]]
 === VirtualDeploymentUnit
+
+Please look at the specification at +
+http://www.etsi.org/deliver/etsi_gs/NFV-MAN/001_099/001/01.01.01_60/gs_NFV-MAN001v010101p.pdf

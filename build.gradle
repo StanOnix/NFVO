@@ -56,7 +56,7 @@ project.ext {
     /**
      * gradle Related Vars
      */
-    mainClass = 'org.project.openbaton.nfvo.main.Application'
+    mainClass = 'org.openbaton.nfvo.main.Application'
     //------------------------------------------------//
     snippetsDir = file('/opt/openbaton/nfvo/build/generated-snippets')  //doc
     springRestdocsVersion = '1.0.0.RC1'   //doc
