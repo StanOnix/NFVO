@@ -13,7 +13,8 @@
 
 === Overview
 
-The NSD describes deployment flavours of a Network Service.
+A NSD is a composition of Virtual Network Functions.
+The NSD describes deployment flavours of a Network Service and holds mostly static information.
 
 
 === Adding a NetworkServiceDescriptor
