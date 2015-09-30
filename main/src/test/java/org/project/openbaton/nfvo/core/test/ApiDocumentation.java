@@ -1,6 +1,7 @@
 package org.project.openbaton.nfvo.core.test;
 
 import com.google.gson.Gson;
+import net.minidev.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Rule;
@@ -10,12 +11,13 @@ import org.openbaton.catalogue.mano.common.*;
 import org.openbaton.catalogue.mano.descriptor.*;
 import org.openbaton.catalogue.mano.record.*;
 import org.openbaton.catalogue.nfvo.*;
+import org.openbaton.catalogue.nfvo.Configuration;
 import org.openbaton.nfvo.main.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.*;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.RestDocumentation;
@@ -91,6 +93,8 @@ public class ApiDocumentation {
 
     private VimInstance vimInstance = new VimInstance();
     private VimInstance vimInstance2 = new VimInstance();
+
+    private Configuration config1 = new Configuration();
 
 
 
@@ -189,6 +193,10 @@ public class ApiDocumentation {
         nsr.setRuntime_policy_info("RuntimePolicyInfo");
         nsr.setDescriptor_reference("The descriptor reference");
 
+
+        config1.setName("config1");
+
+
         vnfd1 = new VirtualNetworkFunctionDescriptor();
         vnfd2 = new VirtualNetworkFunctionDescriptor();
         vnfd3 = new VirtualNetworkFunctionDescriptor();
@@ -217,6 +225,7 @@ public class ApiDocumentation {
         vnfd3.setVld(new HashSet<VirtualLinkDescriptor>());
         vnfd3.setConnection_point(new HashSet<ConnectionPoint>());
         vnfd3.setMonitoring_parameter(new HashSet<String>());
+        vnfd3.setConfigurations(config1);
         vnfd4.setName("VNFD4");
         vnfd4.setType("Type4");
         vnfd5.setName("VNFD5");
@@ -255,7 +264,6 @@ public class ApiDocumentation {
         vimInstance2.setPassword("12345");
         vimInstance2.setTenant("The tenant");
         vimInstance2.setUsername("user");
-
 
 
     }
@@ -743,14 +751,13 @@ public class ApiDocumentation {
 
         String nsrId = new JSONObject(createResponse).getString("id");
 
-
         String updateResponse = this.mockMvc.perform(put("/api/v1/ns-records/" + nsrId).
                 contentType(MediaType.APPLICATION_JSON_VALUE).
                 content(gson.toJson(nsr))).
                 andExpect(status().isAccepted()).andReturn().getResponse().getContentAsString();
 
         nsrId = new JSONObject(updateResponse).getString("id");
-        
+
         this.mockMvc.perform(delete("/api/v1/ns-records/" + nsrId))
                 .andExpect(status().isNoContent());
     }
