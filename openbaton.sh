@@ -4,7 +4,7 @@ source gradle.properties
 
 _version=${version}
 
-_openbaton_base="."
+_openbaton_base="/opt/openbaton/"
 _message_queue_base="apache-activemq-5.11.1"
 _openbaton_config_file=/etc/openbaton/openbaton.properties
 
@@ -86,8 +86,6 @@ function check_already_running {
         fi
 }
 
-
-
 function start {
 
     if [ ! -d build/  ]
@@ -100,8 +98,8 @@ function start {
     check_already_running
     if [ 0 -eq $? ]
         then
-	    screen -c .screenrc -d -m -S openbaton -t nfvo java -jar "$_openbaton_base/build/libs/openbaton-$_version.jar" --spring.config.location=file:${_openbaton_config_file}
-#            screen -d -m -S openbaton -p 0 -X screen -t nfvo java -jar "$_openbaton_base/build/libs/openbaton-$_version.jar" --spring.config.location=file:${_openbaton_config_file}
+	    screen -X eval "chdir $PWD"
+	    screen -c .screenrc -d -m -S openbaton -t nfvo java -jar "build/libs/openbaton-$_version.jar" --spring.config.location=file:${_openbaton_config_file}
 	    screen -c .screenrc -r -p 0
     fi
 }
@@ -142,14 +140,7 @@ function end {
 }
 function usage {
     echo -e "Open-Baton\n"
-    echo -e "Usage:\n\t ./openbaton.sh <option>\n\t"
-    echo -e "where option is"
-    echo -e "\t\t * compile"
-    echo -e "\t\t * start"
-    echo -e "\t\t * stop"
-    echo -e "\t\t * test"
-    echo -e "\t\t * kill"
-    echo -e "\t\t * clean"
+    echo -e "Usage:\n\t ./openbaton.sh [compile|start|stop|test|kill|clean]"
 }
 
 ##
