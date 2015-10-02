@@ -23,17 +23,17 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.MockitoAnnotations;
 import org.openbaton.catalogue.mano.common.*;
 import org.openbaton.catalogue.mano.descriptor.*;
 import org.openbaton.catalogue.mano.record.*;
 import org.openbaton.catalogue.nfvo.*;
-import org.openbaton.catalogue.nfvo.Configuration;
-import org.openbaton.nfvo.main.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.context.annotation.*;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentation;
 import org.springframework.restdocs.mockmvc.RestDocumentationResultHandler;
@@ -61,21 +61,27 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
+@org.springframework.context.annotation.Configuration
 @WebAppConfiguration
-@SpringApplicationConfiguration(classes = Application.class)
-@ComponentScan(basePackages = { "org.project.openbaton.nfvo" })
+@SpringApplicationConfiguration(classes = ApiDocumentation.class)
+@ComponentScan(basePackages = { "org.openbaton" })
 public class ApiDocumentation {
-
-    Gson gson = new Gson();
-
 
     @Rule
     public final RestDocumentation restDocumentation = new RestDocumentation("../build/generated-snippets");
+
+    private Gson gson = new Gson();
+
     private RestDocumentationResultHandler document;
+
     private static Logger log = LoggerFactory.getLogger(ApiDocumentation.class);
 
     @Autowired
     private WebApplicationContext context;
+
+    public void setApplicationContext(ApplicationContext context){
+        this.context = (WebApplicationContext) context;
+    }
 
     private MockMvc mockMvc;
 
@@ -110,6 +116,7 @@ public class ApiDocumentation {
     @Before
     public void setUp() {
 
+        MockitoAnnotations.initMocks(this);
 
         this.document = document("{method-name}",
                 preprocessRequest(prettyPrint()),
@@ -117,7 +124,7 @@ public class ApiDocumentation {
 
         log.debug("ContextClas: " + context.getClass().getName());
 
-        this.mockMvc = MockMvcBuilders.webAppContextSetup((WebApplicationContext) context)
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(context)
                 .apply(documentationConfiguration(this.restDocumentation))
                 .alwaysDo(this.document)
                 .build();
@@ -601,16 +608,16 @@ public class ApiDocumentation {
                 content(gson.toJson(nsd1))).
                 andExpect(status().isCreated()).
                 andDo(document("nsr-create-example", requestFields(
-                        fieldWithPath("auto_scale_policy").description("_"),
+                        fieldWithPath("auto_scale_policy").description("Represents the policy meta data, which may include the criteria parameter & action-type"),
                         fieldWithPath("enabled").description("Is the NSR enabled or not"),
-                        fieldWithPath("hb_version").description("_"),
-                        fieldWithPath("monitoring_parameter").description("_"),
+                        fieldWithPath("hb_version").optional().description("not needed"),
+                        fieldWithPath("monitoring_parameter").description("Represents a monitoring parameter which can be tracked for this NS."),
                         fieldWithPath("name").description("The name of the NSR"),
                         fieldWithPath("service_deployment_flavour").type(JsonFieldType.OBJECT).description("Represents the service KPI parameters and its requirement for each deployment flavour of the NS being described, see clause 6.2.1.3."),
                         fieldWithPath("vendor").type(JsonFieldType.STRING).description("The vendor of the NSR"),
                         fieldWithPath("version").description("The version of the NSR"),
                         fieldWithPath("vnfd").description("Array of the <<resources-VirtualNetworkFunctionDescriptor, VNFDs>> of the NSR"),
-                        fieldWithPath("vnffgd").description("_"),
+                        fieldWithPath("vnffgd").type(JsonFieldType.ARRAY).description("graph of logical links connecting NF nodes for the purpose of describing traffic flow between these network functions "),
                         fieldWithPath("vld").description("An array of VirtualLinkDescriptors")
 
                 ))).
@@ -689,7 +696,7 @@ public class ApiDocumentation {
                         fieldWithPath("vnf_dependency").description("Array of <<components-VNFRecordDependency, VNFRecordDependencies>>"),
                         fieldWithPath("vnffgr").description("_"),
                         fieldWithPath("vnfr").description("An array of <<resources-VirtualNetworkFunctionRecord, VirtualNetworkFunctionRecords>>")
-                        ))).
+                ))).
                 andDo(document("nsr-get-example", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
     }
 
@@ -873,15 +880,16 @@ public class ApiDocumentation {
                 andExpect(status().isCreated()).
                 andDo(document("vim-instance-create-example", requestFields(
                         fieldWithPath("authUrl").description("The key authorisation URL of this PoP"),
-                        fieldWithPath("flavours").description("_"),
+                        fieldWithPath("flavours").description("The list of available flavours on this PoP"),
                         fieldWithPath("images").description("An array of <<components-NFVImages, NFVImages>>"),
-                        fieldWithPath("location").description("_"),// TODO
+                        fieldWithPath("location").description("The geographical location of this PoP"),
                         fieldWithPath("name").description("The name of the VimInstance"),
-                        fieldWithPath("password").description("_"), // TODO
-                        fieldWithPath("securityGroups").description("_"),
-                        fieldWithPath("tenant").description("_"), // TODO
+                        fieldWithPath("password").description("The password to access this PoP"),
+                        fieldWithPath("securityGroups").description("The list of available networks on this PoP"),
+                        fieldWithPath("tenant").description("the chosen tenant for this PoP"),
                         fieldWithPath("type").description("The type of the VimInstance"),
-                        fieldWithPath("username").description("_"), // TODO
+                        fieldWithPath("username").description("The chosen username to access this PoP"),
+                        fieldWithPath("networks").description("The list of available networks on this PoP"),
                         fieldWithPath("version").description("The version of the VimInstance")
                 ))).
                 andDo(document("vim-instance-create-example", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
@@ -921,18 +929,18 @@ public class ApiDocumentation {
                 andExpect(status().isOk()).
                 andDo(document("vim-instance-get-example", responseFields(
                         fieldWithPath("authUrl").description("The key authorisation URL of this PoP"),
-                        fieldWithPath("flavours").description("_"),
+                        fieldWithPath("flavours").description("The list of available flavours on this PoP"),
                         fieldWithPath("id").description("The id of the VimInstance"),
                         fieldWithPath("images").description("Array of <<components-NFVImage, NFVImages>>"),
                         fieldWithPath("keyPair").type(JsonFieldType.STRING).description("_"),
-                        fieldWithPath("location").description("_"), // TODO
+                        fieldWithPath("location").description("The geographical location of this PoP"),
                         fieldWithPath("name").description("The name of the VimInstance"),
-                        fieldWithPath("networks").description("_"), // TODO
-                        fieldWithPath("password").description("_"), // TODO
-                        fieldWithPath("securityGroups").description("_"),
-                        fieldWithPath("tenant").description("_"),// TODO
+                        fieldWithPath("networks").description("The list of available networks on this PoP"),
+                        fieldWithPath("password").description("The password to access this PoP"),
+                        fieldWithPath("securityGroups").description("The list of available security groups on this PoP"),
+                        fieldWithPath("tenant").description("the chosen tenant for this PoP"),
                         fieldWithPath("type").description("The type of the VimInstance"),
-                        fieldWithPath("username").description("_"),// TODO
+                        fieldWithPath("username").description("The chosen username to access this PoP"),
                         fieldWithPath("version").description("The version of the VimInstance")
                 ))).
                 andDo(document("vim-instance-get-example", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
@@ -956,14 +964,18 @@ public class ApiDocumentation {
                 andExpect(status().isAccepted()).
                 andDo(document("vim-instance-update-example", requestFields(
                         fieldWithPath("authUrl").description("The key authorisation URL of this PoP"),
+                        fieldWithPath("flavours").description("The list of available flavours on this PoP"),
+                        fieldWithPath("id").description("The id of the VimInstance"),
                         fieldWithPath("images").description("Array of <<components-NFVImage, NFVImages>>"),
-                        fieldWithPath("location").description("_"),// TODO
+                        fieldWithPath("keyPair").type(JsonFieldType.STRING).description("_"),
+                        fieldWithPath("location").description("The geographical location of this PoP"),
                         fieldWithPath("name").description("The name of the VimInstance"),
-                        fieldWithPath("networks").description("_"),// TODO
-                        fieldWithPath("password").description("_"),// TODO
-                        fieldWithPath("tenant").description("_"),// TODO
+                        fieldWithPath("networks").description("The list of available networks on this PoP"),
+                        fieldWithPath("password").description("The password to access this PoP"),
+                        fieldWithPath("securityGroups").description("The list of available security groups on this PoP"),
+                        fieldWithPath("tenant").description("the chosen tenant for this PoP"),
                         fieldWithPath("type").description("The type of the VimInstance"),
-                        fieldWithPath("username").description("_"),// TODO
+                        fieldWithPath("username").description("The chosen username to access this PoP"),
                         fieldWithPath("version").description("The version of the VimInstance")
                 ))).
                 andDo(document("vim-instance-update-example", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
