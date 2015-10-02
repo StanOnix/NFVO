@@ -413,36 +413,12 @@ http://www.etsi.org/deliver/etsi_gs/NFV-MAN/001_099/001/01.01.01_60/gs_NFV-MAN00
 `POST` request with a VimInstance as JSON content in the request body +
 {host}/api/v1/datacenters
 
-==== Request structure
-
-include::{snippets}/vim-instance-create-example/request-fields.adoc[]
-
-==== Example request
-
-include::{snippets}/vim-instance-create-example/curl-request.adoc[]
-
-==== Example response
-
-include::{snippets}/vim-instance-create-example/http-response.adoc[]
-
 
 
 === Retrieving all VimInstances
 
 `GET` request +
 {host}/api/v1/datacenters
-
-==== Response structure
-
-include::{snippets}/vim-instance-get-all-example/response-fields.adoc[]
-
-==== Example request
-
-include::{snippets}/vim-instance-get-all-example/curl-request.adoc[]
-
-==== Example response
-
-include::{snippets}/vim-instance-get-all-example/http-response.adoc[]
 
 
 
@@ -452,17 +428,6 @@ include::{snippets}/vim-instance-get-all-example/http-response.adoc[]
 the id in the url belongs to the VimInstance
 {host}/api/v1/datacenters/{vId} +
 
-==== Response structure
-
-include::{snippets}/vim-instance-get-example/response-fields.adoc[]
-
-==== Example request
-
-include::{snippets}/vim-instance-get-example/curl-request.adoc[]
-
-==== Example response
-
-include::{snippets}/vim-instance-get-example/http-response.adoc[]
 
 
 === Updating a VimInstance
@@ -471,17 +436,6 @@ include::{snippets}/vim-instance-get-example/http-response.adoc[]
 the id in the url belongs to the VimInstance to update
 {host}/api/v1/datacenters/{vId}
 
-==== Request structure
-
-include::{snippets}/vim-instance-update-example/request-fields.adoc[]
-
-==== Example request
-
-include::{snippets}/vim-instance-update-example/curl-request.adoc[]
-
-==== Example response
-
-include::{snippets}/vim-instance-update-example/http-response.adoc[]
 
 
 === Removing a VimInstances
@@ -490,13 +444,6 @@ include::{snippets}/vim-instance-update-example/http-response.adoc[]
 the id in the url belongs to the VimInstance that shall be deleted +
 {host}/api/v1/datacenters/{vId}
 
-==== Example request
-
-include::{snippets}/vim-instance-delete-example/curl-request.adoc[]
-
-==== Example response
-
-include::{snippets}/vim-instance-delete-example/http-response.adoc[]
 
 
 
