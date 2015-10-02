@@ -22,6 +22,7 @@ import org.openbaton.catalogue.mano.descriptor.*;
 import org.openbaton.catalogue.mano.record.*;
 import org.openbaton.catalogue.nfvo.*;
 import org.openbaton.exceptions.*;
+import org.openbaton.nfvo.common.internal.model.EventNFVO;
 import org.openbaton.nfvo.core.interfaces.EventDispatcher;
 import org.openbaton.nfvo.core.interfaces.NetworkManagement;
 import org.openbaton.nfvo.core.interfaces.ResourceManagement;
@@ -270,7 +271,6 @@ public class NetworkServiceRecordManagement implements org.openbaton.nfvo.core.i
                 for (VirtualDeploymentUnit virtualDeploymentUnit : virtualNetworkFunctionRecord.getVdu()) {
                     for (VNFCInstance vnfcInstance : virtualDeploymentUnit.getVnfc_instance()) {
                         futures.add(resourceManagement.release(virtualDeploymentUnit, vnfcInstance));
-                        vnfcInstance.setFloatingIps(null);
                     }
                 }
                 virtualNetworkFunctionRecord.setStatus(Status.TERMINATED);
@@ -286,9 +286,11 @@ public class NetworkServiceRecordManagement implements org.openbaton.nfvo.core.i
         }
 
         if (!release) {
-            ApplicationEventNFVO event = new ApplicationEventNFVO(this, Action.RELEASE_RESOURCES_FINISH, networkServiceRecord);
+            ApplicationEventNFVO event = new ApplicationEventNFVO(Action.RELEASE_RESOURCES_FINISH, networkServiceRecord);
+            EventNFVO eventNFVO = new EventNFVO(this);
+            eventNFVO.setEventNFVO(event);
             log.debug("Publishing event: " + event);
-            publisher.dispatchEvent(event);
+            publisher.dispatchEvent(eventNFVO);
             nsrRepository.delete(networkServiceRecord);
         }
     }

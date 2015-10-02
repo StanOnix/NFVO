@@ -41,12 +41,10 @@ public abstract class Vim implements ImageManagement, ResourceManagement, Networ
     public Vim(String type, int port) {
         pluginBroker = new PluginBroker<>();
         try {
-            client = pluginBroker.getPlugin("vim-drivers",type, port);
-            log.trace("Class is: " + client.getClass().getName());
+            client = pluginBroker.getPlugin("localhost", "vim-drivers",type, port);
         } catch (RemoteException e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         } catch (NotBoundException e) {
-            e.printStackTrace();
             log.error("No plugin found for type: " + type);
         }
     }
@@ -54,12 +52,10 @@ public abstract class Vim implements ImageManagement, ResourceManagement, Networ
     public Vim(String type) {
         pluginBroker = new PluginBroker<>();
         try {
-            client = pluginBroker.getPlugin("vim-drivers",type);
-            log.trace("Class is: " + client.getClass().getName());
+            client = pluginBroker.getPlugin("localhost", "vim-drivers",type);
         } catch (RemoteException e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         } catch (NotBoundException e) {
-            e.printStackTrace();
             log.error("No plugin found for type: " + type);
         }
     }
@@ -67,25 +63,21 @@ public abstract class Vim implements ImageManagement, ResourceManagement, Networ
     public Vim(String type, String name) {
         pluginBroker = new PluginBroker<>();
         try {
-            client = pluginBroker.getPlugin("vim-drivers",type,name);
-            log.trace("Class is: " + client.getClass().getName());
+            client = pluginBroker.getPlugin("localhost", "vim-drivers",type,name);
         } catch (RemoteException e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         } catch (NotBoundException e) {
-            e.printStackTrace();
-            log.error("No plugin found for name: " + name);
+            log.error("No plugin found for type: " + type);
         }
     }
 
     public Vim(String type, String name, int port) {
         pluginBroker = new PluginBroker<>();
         try {
-            client = pluginBroker.getPlugin("vim-drivers",type, name, port);
-            log.trace("Class is: " + client.getClass().getName());
+            client = pluginBroker.getPlugin("localhost", "vim-drivers",type, name, port);
         } catch (RemoteException e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         } catch (NotBoundException e) {
-            e.printStackTrace();
             log.error("No plugin found for type: " + type);
         }
     }

@@ -74,7 +74,7 @@ public class VNFPackageManagement implements org.openbaton.nfvo.core.interfaces.
     private VimBroker vimBroker;
 
     @Override
-    public VNFPackage onboard(byte[] pack) throws IOException, VimException, NotFoundException, SQLException {
+    public VirtualNetworkFunctionDescriptor onboard(byte[] pack) throws IOException, VimException, NotFoundException, SQLException {
         VNFPackage vnfPackage = new VNFPackage();
         vnfPackage.setScripts(new HashSet<Script>());
         Map<String, Object> metadata = null;
@@ -163,6 +163,12 @@ public class VNFPackageManagement implements org.openbaton.nfvo.core.interfaces.
         if (metadata == null) {
             throw new NotFoundException("VNFPackageManagement: Not found Metadata.yaml");
         }
+        if (vnfPackage.getScriptsLink() != null) {
+            if (vnfPackage.getScripts().size() > 0) {
+                log.debug("Remove scripts got by scripts/ because the scripts-link is defined");
+                vnfPackage.setScripts(new HashSet<Script>());
+            }
+        }
         List<String> vimInstances = new ArrayList<>();
         if (vnfPackage.getImageLink() == null) {
             if (imageFile == null) {
@@ -187,7 +193,7 @@ public class VNFPackageManagement implements org.openbaton.nfvo.core.interfaces.
         virtualNetworkFunctionDescriptor.setVnfPackage(vnfPackage);
         vnfdRepository.save(virtualNetworkFunctionDescriptor);
         log.trace("Persisted " + virtualNetworkFunctionDescriptor);
-        return virtualNetworkFunctionDescriptor.getVnfPackage();
+        return virtualNetworkFunctionDescriptor;
     }
 
     @Override

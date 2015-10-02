@@ -57,8 +57,9 @@ project.ext {
      * gradle Related Vars
      */
     mainClass = 'org.openbaton.nfvo.main.Application'
+    enableSecurity = false
     //------------------------------------------------//
-    snippetsDir = file('/opt/openbaton/nfvo/build/generated-snippets')  //doc
+    snippetsDir = file('build/generated-snippets')  //doc
     springRestdocsVersion = '1.0.0.RC1'   //doc
 }
 
@@ -79,7 +80,7 @@ dependencies {
 }
 
 asciidoctor {   // doc
-    sourceDir '/opt/openbaton/nfvo/main/src/main/asciidoc'
+    sourceDir 'main/src/main/asciidoc'
     attributes 'snippets': snippetsDir
     inputs.dir snippetsDir
     dependsOn test
