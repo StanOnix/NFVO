@@ -347,7 +347,7 @@ public class ApiDocumentation {
                         fieldWithPath("name").description("The NSD's name"),
                         fieldWithPath("nsd_security").type(JsonFieldType.OBJECT).description("_"),
                         fieldWithPath("pnfd").description("_"),
-                        fieldWithPath("service_deployment_flavour").type(JsonFieldType.OBJECT).description("_"),
+                        fieldWithPath("service_deployment_flavour").type(JsonFieldType.ARRAY).description("Represents the service KPI parameters and its requirement for each deployment flavour of the NS being described, see clause 6.2.1.3."),
                         fieldWithPath("vendor").description("The vendor of the NSD"),
                         fieldWithPath("version").description("The NSD's version"),
                         fieldWithPath("vld").description("An array of VirtualLinkDescriptors"),
@@ -422,8 +422,8 @@ public class ApiDocumentation {
                         fieldWithPath("auto_scale_policy").description("An array of the VNFD's auto scale parameters"),
                         fieldWithPath("configurations").type(JsonFieldType.OBJECT).description("_"),
                         fieldWithPath("connection_point").description("An array containing the VNFD's ConnectionPoints"),
-                        fieldWithPath("deployment_flavour").description("_"),
-                        fieldWithPath("endpoint").type(JsonFieldType.STRING).description("_"), // TODO
+                        fieldWithPath("deployment_flavour").type(JsonFieldType.ARRAY).description("Represents the assurance parameter(s) and its requirement for each deployment flavour of the VNF being described, see clause 6.3.1.5."),
+                        fieldWithPath("endpoint").type(JsonFieldType.STRING).description("The type defined by the Vnfm in charge of managing this VNF"),
                         fieldWithPath("hb_version").description("_"),
                         fieldWithPath("id").description("The VNFD's id"),
                         fieldWithPath("lifecycle_event").description("An array of LifecyleEvents"),
@@ -431,9 +431,9 @@ public class ApiDocumentation {
                         fieldWithPath("manifest_file_security").description("Used for validating integrity and authenticity of the VNFD"),
                         fieldWithPath("monitoring_parameter").description("An array of the VNFD's monitoring parameters"),
                         fieldWithPath("name").description("The VNFD's name"),
-                        fieldWithPath("provides").description("_"),// TODO
-                        fieldWithPath("requires").description("_"),// TODO
-                        fieldWithPath("service_deployment_flavour").type(JsonFieldType.OBJECT).description("_"),
+                        fieldWithPath("provides").description("The parameters that this VNF provides to other VNFs"),
+                        fieldWithPath("requires").description("The parameters that this VNF requires from other VNFs"),
+                        fieldWithPath("service_deployment_flavour").type(JsonFieldType.ARRAY).description("Represents the service KPI parameters and its requirement for each deployment flavour of the NS being described, see clause 6.2.1.3."),
                         fieldWithPath("type").description("The type of the VNFD"),
                         fieldWithPath("vendor").description("The vendor of the VNFD"),
                         fieldWithPath("version").description("The VNFD's version"),
@@ -497,15 +497,15 @@ public class ApiDocumentation {
                         fieldWithPath("configurations").type(JsonFieldType.OBJECT).description("Configuration object to configure the Network Service"),
                         fieldWithPath("connection_point").description("Array of elements that describe external interfaces enabling connection with a VirtualLink"),
                         fieldWithPath("cyclicDependency").description("_"),
-                        fieldWithPath("endpoint").type(JsonFieldType.STRING).description("_"),// TODO
+                        fieldWithPath("endpoint").type(JsonFieldType.STRING).description("The type defined by the Vnfm in charge of managing this VNF"),
                         fieldWithPath("hb_version").description("_"),
-                        fieldWithPath("lifecycle_event").description("_"),// TODO
+                        fieldWithPath("lifecycle_event").type(JsonFieldType.ARRAY).description("The lifecycle events that should be executed by the Vnfm of this VNF on the VNF"),
                         fieldWithPath("manifest_file").type(JsonFieldType.STRING).description("A file that lists all files in the <<resources-VNFPackage, VNFPackage>>"),
                         fieldWithPath("manifest_file_security").description("Used for validating integrity and authenticity of the VNFD"),
                         fieldWithPath("monitoring_parameter").description("_"),
                         fieldWithPath("name").description("The name of the VNFD"),
-                        fieldWithPath("provides").description("_"),// TODO
-                        fieldWithPath("requires").description("_"),// TODO
+                        fieldWithPath("provides").description("The parameters that this VNF provides to other VNFs"),
+                        fieldWithPath("requires").description("The parameters that this VNF requires from other VNFs"),
                         fieldWithPath("type").description("The type of the VNFD"),
                         fieldWithPath("vdu").description("An aray of <<components-VirtualDeploymentUnit, VirtualDeploymentUnits>>"),
                         fieldWithPath("vdu_dependency").description("An array of elements that describe dependencies between <<components-VirtualDeploymentUnit, VDUs>>"),
@@ -548,15 +548,15 @@ public class ApiDocumentation {
                         fieldWithPath("configurations").type(JsonFieldType.OBJECT).description("Configuration object to configure the Network Service"),
                         fieldWithPath("connection_point").description("Array of elements that describe external interfaces enabling connection with a VirtualLink"),
                         fieldWithPath("cyclicDependency").description("_"),
-                        fieldWithPath("endpoint").type(JsonFieldType.STRING).description("_"),// TODO
+                        fieldWithPath("endpoint").type(JsonFieldType.STRING).description("The type defined by the Vnfm in charge of managing this VNF"),
                         fieldWithPath("hb_version").description("_"),
-                        fieldWithPath("lifecycle_event").description("_"),// TODO
+                        fieldWithPath("lifecycle_event").description("The lifecycle events that should be executed by the Vnfm of this VNF on the VNF"),
                         fieldWithPath("manifest_file").type(JsonFieldType.STRING).description("A file that lists all files in the <<resources-VNFPackage, VNFPackage>>"),
                         fieldWithPath("manifest_file_security").description("Used for validating integrity and authenticity of the VNFD"),
                         fieldWithPath("monitoring_parameter").description("_"),
                         fieldWithPath("name").description("The name of the VNFD"),
-                        fieldWithPath("provides").description("_"),// TODO
-                        fieldWithPath("requires").description("_"),// TODO
+                        fieldWithPath("provides").description("The parameters that this VNF provides to other VNFs"),
+                        fieldWithPath("requires").description("The parameters that this VNF requires from other VNFs"),
                         fieldWithPath("type").description("The type of the VNFD"),
                         fieldWithPath("vdu").description("An aray of <<components-VirtualDeploymentUnit, VirtualDeploymentUnits>>"),
                         fieldWithPath("vdu_dependency").description("An array of elements that describe dependencies between <<components-VirtualDeploymentUnit, VDUs>>"),
@@ -606,7 +606,7 @@ public class ApiDocumentation {
                         fieldWithPath("hb_version").description("_"),
                         fieldWithPath("monitoring_parameter").description("_"),
                         fieldWithPath("name").description("The name of the NSR"),
-                        fieldWithPath("service_deployment_flavour").type(JsonFieldType.OBJECT).description("_"),
+                        fieldWithPath("service_deployment_flavour").type(JsonFieldType.OBJECT).description("Represents the service KPI parameters and its requirement for each deployment flavour of the NS being described, see clause 6.2.1.3."),
                         fieldWithPath("vendor").type(JsonFieldType.STRING).description("The vendor of the NSR"),
                         fieldWithPath("version").description("The version of the NSR"),
                         fieldWithPath("vnfd").description("Array of the <<resources-VirtualNetworkFunctionDescriptor, VNFDs>> of the NSR"),
@@ -673,7 +673,7 @@ public class ApiDocumentation {
                         fieldWithPath("connection_point").description("_"),
                         fieldWithPath("descriptor_reference").type(JsonFieldType.STRING).description("The reference to the Network Service Descriptor used to instantiate this Network Service."),
                         fieldWithPath("id").description("The id of the NSR"),
-                        fieldWithPath("lifecycle_event").description("Array of LifecycleEvents"),
+                        fieldWithPath("lifecycle_event").type(JsonFieldType.ARRAY).description("The lifecycle events that should be executed by the Vnfm of this VNF on the VNF"),
                         fieldWithPath("lifecycle_event_history").description("Record of significant Network Service lifecycle events"),
                         fieldWithPath("monitoring_parameter").description("_"),
                         fieldWithPath("name").description("The name of the NSR"),
@@ -681,7 +681,7 @@ public class ApiDocumentation {
                         fieldWithPath("pnfr").description("_"),
                         fieldWithPath("resource_reservation").type(JsonFieldType.STRING).description("_"),
                         fieldWithPath("runtime_policy_info").type(JsonFieldType.STRING).description("_"),
-                        fieldWithPath("service_deployment_flavour").type(JsonFieldType.OBJECT).description("_"),
+                        fieldWithPath("service_deployment_flavour").type(JsonFieldType.OBJECT).description("Represents the service KPI parameters and its requirement for each deployment flavour of the NS being described, see clause 6.2.1.3."),
                         fieldWithPath("status").description("The status of the NSR"),
                         fieldWithPath("vendor").type(JsonFieldType.STRING).description("The vendor of the NSR"),
                         fieldWithPath("version").description("The version of the NSR"),
@@ -712,7 +712,7 @@ public class ApiDocumentation {
                 andExpect(status().isAccepted()).
                 andDo(document("nsr-update-example", requestFields(
                         fieldWithPath("descriptor_reference").type(JsonFieldType.STRING).description("The reference to the Network Service Descriptor used to instantiate this Network Service."),
-                        fieldWithPath("lifecycle_event").description("An array of LifecycleEvents"),
+                        fieldWithPath("lifecycle_event").type(JsonFieldType.ARRAY).description("The lifecycle events that should be executed by the Vnfm of this VNF on the VNF"),
                         fieldWithPath("name").description("The name of the NSR"),
                         fieldWithPath("runtime_policy_info").type(JsonFieldType.STRING).description("_"),
                         fieldWithPath("status").description("The status of the NSR"),
@@ -807,22 +807,22 @@ public class ApiDocumentation {
                         fieldWithPath("connected_external_virtual_link").description("Array of referencs to <<components-VirtualLinkRecord, VLRs>>"),
                         fieldWithPath("connection_point").description("_"),
                         fieldWithPath("descriptor_reference").type(JsonFieldType.STRING).description("The reference to the <<resources-VirtualNetworkFunctionDescriptor, VNFD>> used to instantiate this VNF"),
-                        fieldWithPath("deployment_flavour_key").type(JsonFieldType.STRING).description("_"),
-                        fieldWithPath("endpoint").type(JsonFieldType.STRING).description("_"),// TODO
+                        fieldWithPath("deployment_flavour_key").type(JsonFieldType.STRING).description("The key representing the deployment flavour"),
+                        fieldWithPath("endpoint").type(JsonFieldType.STRING).description("The type defined by the Vnfm in charge of managing this VNF"),
                         fieldWithPath("hb_version").description("_"),
                         fieldWithPath("id").description("The id of the VNFR"),
-                        fieldWithPath("lifecycle_event").description("Array of <<components-LifecycleEvent, LifecycleEvents>>"),
-                        fieldWithPath("lifecycle_event_history").description("Record of significant Network Service lifecycle events"),
+                        fieldWithPath("lifecycle_event").description("The lifecycle events that should be executed by the Vnfm of this VNF on the VNF"),
+                        fieldWithPath("lifecycle_event_history").description("The lifecycle events that has been executed on the VNF"),
                         fieldWithPath("localization").type(JsonFieldType.STRING).description("_"),
                         fieldWithPath("monitoring_parameter").description("_"),
                         fieldWithPath("name").type(JsonFieldType.STRING).description("The name of the VNFR"),
                         fieldWithPath("notification").type(JsonFieldType.STRING).description("_"),
                         fieldWithPath("parent_ns_id").type(JsonFieldType.STRING).description("Reference to the <<resources-NetworkServiceRecord, NSRs>> that this VNFR is part of"),
-                        fieldWithPath("provides").type(JsonFieldType.OBJECT).description("_"),// TODO
-                        fieldWithPath("requires").type(JsonFieldType.OBJECT).description("_"),// TODO
+                        fieldWithPath("provides").type(JsonFieldType.OBJECT).description("The parameters that this VNF provides to other VNFs"),
+                        fieldWithPath("requires").type(JsonFieldType.OBJECT).description("The parameters that this VNF requires from other VNFs"),
                         fieldWithPath("runtime_policy_info").type(JsonFieldType.STRING).description("_"),
                         fieldWithPath("status").type(JsonFieldType.OBJECT).description("The status of the VNFR"),
-                        fieldWithPath("task").type(JsonFieldType.STRING).description("_"),// TODO
+                        fieldWithPath("task").type(JsonFieldType.STRING).description("The task that it is executing for this VNFRecord"),
                         fieldWithPath("type").type(JsonFieldType.STRING).description("The type of the VNFR"),
                         fieldWithPath("vdu").description("An aray of <<components-VirtualDeploymentUnit, VirtualDeploymentUnits>>"),
                         fieldWithPath("vendor").type(JsonFieldType.STRING).description("The vendor of the VNFR"),
@@ -872,7 +872,7 @@ public class ApiDocumentation {
                 content(gson.toJson(vimInstance))).
                 andExpect(status().isCreated()).
                 andDo(document("vim-instance-create-example", requestFields(
-                        fieldWithPath("authUrl").description("_"), // TODO
+                        fieldWithPath("authUrl").description("The key authorisation URL of this PoP"),
                         fieldWithPath("flavours").description("_"),
                         fieldWithPath("images").description("An array of <<components-NFVImages, NFVImages>>"),
                         fieldWithPath("location").description("_"),// TODO
@@ -920,7 +920,7 @@ public class ApiDocumentation {
         this.mockMvc.perform(get("/api/v1/datacenters/" + id)).
                 andExpect(status().isOk()).
                 andDo(document("vim-instance-get-example", responseFields(
-                        fieldWithPath("authUrl").description("_"),// TODO
+                        fieldWithPath("authUrl").description("The key authorisation URL of this PoP"),
                         fieldWithPath("flavours").description("_"),
                         fieldWithPath("id").description("The id of the VimInstance"),
                         fieldWithPath("images").description("Array of <<components-NFVImage, NFVImages>>"),
@@ -955,7 +955,7 @@ public class ApiDocumentation {
                 content(gson.toJson(vimInstance2))).
                 andExpect(status().isAccepted()).
                 andDo(document("vim-instance-update-example", requestFields(
-                        fieldWithPath("authUrl").description("_"),// TODO
+                        fieldWithPath("authUrl").description("The key authorisation URL of this PoP"),
                         fieldWithPath("images").description("Array of <<components-NFVImage, NFVImages>>"),
                         fieldWithPath("location").description("_"),// TODO
                         fieldWithPath("name").description("The name of the VimInstance"),
