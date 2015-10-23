@@ -17,6 +17,7 @@
 package org.openbaton.nfvo.core.core;
 
 import org.openbaton.catalogue.mano.descriptor.VNFComponent;
+import org.openbaton.catalogue.mano.descriptor.VNFDConnectionPoint;
 import org.openbaton.catalogue.mano.descriptor.VirtualDeploymentUnit;
 import org.openbaton.catalogue.mano.record.VNFCInstance;
 import org.openbaton.catalogue.mano.record.VirtualNetworkFunctionRecord;
@@ -28,15 +29,14 @@ import org.openbaton.vim.drivers.exceptions.VimDriverException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -45,14 +45,23 @@ import java.util.concurrent.Future;
  */
 @Service
 @Scope("prototype")
+@ConfigurationProperties(prefix = "activemq")
 public class ResourceManagement implements org.openbaton.nfvo.core.interfaces.ResourceManagement {
 
-    private static final String gitRepoEms = "https://gitlab.fokus.fraunhofer.de/openbaton/ems-public.git";
-    private static final String branch = "develop";
-
+//    private static final String gitRepoEms = "https://gitlab.fokus.fraunhofer.de/openbaton/ems-public.git";
+//    private static final String branch = "develop";
+    private String brokerIp;
     private Logger log = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private VimBroker vimBroker;
+
+    public String getBrokerIp() {
+        return brokerIp;
+    }
+
+    public void setBrokerIp(String brokerIp) {
+        this.brokerIp = brokerIp;
+    }
 
     @Override
     public List<String> allocate(VirtualDeploymentUnit virtualDeploymentUnit, VirtualNetworkFunctionRecord virtualNetworkFunctionRecord) throws VimException, VimDriverException, ExecutionException, InterruptedException {
@@ -62,16 +71,36 @@ public class ResourceManagement implements org.openbaton.nfvo.core.interfaces.Re
         List<String> ids = new ArrayList<>();
         log.debug("NAME: " + virtualNetworkFunctionRecord.getName());
         log.debug("ID: " + virtualDeploymentUnit.getId());
-        virtualDeploymentUnit.setHostname(virtualNetworkFunctionRecord.getName());
+        String hostname = virtualNetworkFunctionRecord.getName().replaceAll("_", "-");
+        log.debug("Hostname is: " + hostname);
+        virtualDeploymentUnit.setHostname(hostname);
         for (VNFComponent component : virtualDeploymentUnit.getVnfc()) {
             log.trace("UserData is: " + getUserData(virtualNetworkFunctionRecord.getEndpoint()));
-            log.debug("The component is Exposed? " + component.isExposed());
-            VNFCInstance added = vim.allocate(virtualDeploymentUnit, virtualNetworkFunctionRecord, component, getUserData(virtualNetworkFunctionRecord.getEndpoint()), component.isExposed()).get();
+            Map<String, String> floatinIps = new HashMap<>();
+            for (VNFDConnectionPoint connectionPoint : component.getConnection_point()){
+                if (connectionPoint.getFloatingIp() != null)
+                    floatinIps.put(connectionPoint.getVirtual_link_reference(),connectionPoint.getFloatingIp());
+            }
+            log.info("FloatingIp chosen are: " + floatinIps);
+            VNFCInstance added = vim.allocate(virtualDeploymentUnit, virtualNetworkFunctionRecord, component, getUserData(virtualNetworkFunctionRecord.getEndpoint()), floatinIps).get();
             ids.add(added.getVc_id());
-            if (component.isExposed() && (added.getFloatingIps() == null || added.getFloatingIps().equals("")))
-                log.warn("NFVO wasn't able to associate FloatingIPs. Is there enough available");
+            if (floatinIps.size() > 0 && (added.getFloatingIps() == null || added.getFloatingIps().size() == 0))
+                log.warn("NFVO wasn't able to associate FloatingIPs. Is there enough available?");
         }
         return ids;
+    }
+
+    private String allocateVNFC(VirtualDeploymentUnit virtualDeploymentUnit, VirtualNetworkFunctionRecord virtualNetworkFunctionRecord, org.openbaton.nfvo.vim_interfaces.resource_management.ResourceManagement vim, VNFComponent component) throws InterruptedException, ExecutionException, VimException, VimDriverException {
+        log.trace("UserData is: " + getUserData(virtualNetworkFunctionRecord.getEndpoint()));
+        Map<String, String> floatinIps = new HashMap<>();
+        for (VNFDConnectionPoint connectionPoint : component.getConnection_point()){
+            floatinIps.put(connectionPoint.getVirtual_link_reference(),connectionPoint.getFloatingIp());
+        }
+        log.info("FloatingIp chosen are: " + floatinIps);
+        VNFCInstance added = vim.allocate(virtualDeploymentUnit, virtualNetworkFunctionRecord, component, getUserData(virtualNetworkFunctionRecord.getEndpoint()), floatinIps).get();
+        if (floatinIps.size() > 0 && added.getFloatingIps().size() == 0)
+            log.warn("NFVO wasn't able to associate FloatingIPs. Is there enough available");
+        return added.getVim_id();
     }
 
     private String getUserData(String endpoint) {
@@ -85,20 +114,22 @@ public class ResourceManagement implements org.openbaton.nfvo.core.interfaces.Re
         log.debug("Loaded: " + properties);
         String url = properties.getProperty("spring.activemq.broker-url");
         String activeIp = (String) url.subSequence(6, url.indexOf(":61616"));
-        log.debug("Active ip is: " + activeIp);
+        log.debug("Active ip is: " + brokerIp);
         String result = "#!/bin/bash\n" +
+                "echo \"deb http://get.openbaton.org/repos/apt/debian/ ems main\" >> /etc/apt/sources.list\n" +
+                "apt-get install git -y\n" +
+                "wget -O - http://get.openbaton.org/public.gpg.key | apt-key add -\n" +
                 "apt-get update\n" +
-                "apt-get install -y git python-pip\n" +
-                "git clone " + gitRepoEms + " -b " + branch + " /opt/ems-deb\n" +
-                "dpkg -i /opt/ems-deb/ems_1.0-1.deb\n" +
+                "apt-get install -y python-pip\n" +
+                "apt-get install -y ems\n" +
+                "mkdir -p /etc/openbaton/ems\n" +
                 "echo [ems] > /etc/openbaton/ems/conf.ini\n" +
-                "echo orch_ip=" + activeIp + " >> /etc/openbaton/ems/conf.ini\n" +
+                "echo orch_ip=" + brokerIp + " >> /etc/openbaton/ems/conf.ini\n" +
                 "export hn=`hostname`\n" +
                 "echo \"type=" + endpoint + "\" >> /etc/openbaton/ems/conf.ini\n" +
                 "echo \"hostname=$hn\" >> /etc/openbaton/ems/conf.ini\n" +
                 "echo orch_port=61613 >> /etc/openbaton/ems/conf.ini\n" +
-
-                "sudo /opt/openbaton/ems/ems.sh start\n";
+                "/opt/openbaton/ems/ems.sh start\n";
         return result;
     }
 
@@ -153,5 +184,15 @@ public class ResourceManagement implements org.openbaton.nfvo.core.interfaces.Re
     @Override
     public void releaseReservation(VirtualDeploymentUnit vdu) {
 
+    }
+
+    @Override
+    public String allocate(VirtualDeploymentUnit virtualDeploymentUnit, VirtualNetworkFunctionRecord virtualNetworkFunctionRecord, VNFComponent componentToAdd) throws InterruptedException, ExecutionException, VimException, VimDriverException {
+        org.openbaton.nfvo.vim_interfaces.resource_management.ResourceManagement vim;
+        vim = vimBroker.getVim(virtualDeploymentUnit.getVimInstance().getType());
+        log.debug("Executing allocate with Vim: " + vim.getClass().getSimpleName());
+        log.debug("NAME: " + virtualNetworkFunctionRecord.getName());
+        log.debug("ID: " + virtualDeploymentUnit.getId());
+        return allocateVNFC(virtualDeploymentUnit, virtualNetworkFunctionRecord, vim, componentToAdd);
     }
 }

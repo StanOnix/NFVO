@@ -20,6 +20,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,16 +34,29 @@ public class PluginStartup {
 
     private static Map<String, Process> processes = new HashMap<>();
 
-    private static void installPlugin(String path, boolean waitForPlugin, String registryip, String port) throws IOException {
-        String pluginName = path.substring(path.lastIndexOf("/") + 1, path.length());
-
-//        StringTokenizer st = new StringTokenizer(pluginName, "-");
-        String name = pluginName.substring(0,pluginName.indexOf("-"));
+    public static void installPlugin(String name, String path, String registryip, String port) throws IOException {
         log.trace("Running: java -jar " + path + " " + name + " localhost "+ port);
         ProcessBuilder processBuilder = new ProcessBuilder("java", "-jar", path, name, registryip, port);
         File file = new File("plugin-" + name + ".log");
         processBuilder.redirectErrorStream(true);
         processBuilder.redirectOutput(ProcessBuilder.Redirect.appendTo(file));
+        log.trace("ProcessBuilder is: " + processBuilder);
+        Process p = processBuilder.start();
+        processes.put(path,p);
+    }
+
+    private static void installPlugin(String path, boolean waitForPlugin, String registryip, String port) throws IOException {
+        String pluginName = path.substring(path.lastIndexOf("/") + 1, path.length());
+
+        String name = pluginName.substring(0,pluginName.indexOf("-"));
+        log.trace("Running: java -jar " + path + " " + name + " localhost "+ port);
+        ProcessBuilder processBuilder = new ProcessBuilder("java", "-jar", path, name, registryip, port);
+        Date dNow = new Date( );
+        SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd_hh-mm-ss");
+
+        File file = new File("plugin-" + name + "_" + ft.format(dNow)+ ".log");
+        processBuilder.redirectErrorStream(true);
+        processBuilder.redirectOutput(ProcessBuilder.Redirect.to(file));
         log.trace("ProcessBuilder is: " + processBuilder);
         Process p = processBuilder.start();
         if (waitForPlugin)

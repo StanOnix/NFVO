@@ -23,6 +23,7 @@ import org.openbaton.catalogue.mano.record.*;
 import org.openbaton.catalogue.nfvo.*;
 import org.openbaton.exceptions.*;
 import org.openbaton.nfvo.common.internal.model.EventNFVO;
+import org.openbaton.nfvo.core.interfaces.DependencyManagement;
 import org.openbaton.nfvo.core.interfaces.EventDispatcher;
 import org.openbaton.nfvo.core.interfaces.NetworkManagement;
 import org.openbaton.nfvo.core.interfaces.ResourceManagement;
@@ -30,6 +31,7 @@ import org.openbaton.nfvo.core.utils.NSDUtils;
 import org.openbaton.nfvo.core.utils.NSRUtils;
 import org.openbaton.nfvo.repositories.NetworkServiceDescriptorRepository;
 import org.openbaton.nfvo.repositories.NetworkServiceRecordRepository;
+import org.openbaton.nfvo.repositories.VNFCRepository;
 import org.openbaton.nfvo.repositories.VNFRRepository;
 import org.openbaton.vim.drivers.exceptions.VimDriverException;
 import org.openbaton.vnfm.interfaces.manager.VnfmManager;
@@ -82,6 +84,12 @@ public class NetworkServiceRecordManagement implements org.openbaton.nfvo.core.i
     @Autowired
     private NetworkManagement networkManagement;
 
+    @Autowired
+    private DependencyManagement dependencyManagement;
+
+    @Autowired
+    private VNFCRepository vnfcRepository;
+
     @Override
     public NetworkServiceRecord onboard(String idNsd) throws InterruptedException, ExecutionException, VimException, NotFoundException, BadFormatException, VimDriverException, QuotaExceededException {
         log.debug("Looking for NetworkServiceDescriptor with id: " + idNsd);
@@ -123,6 +131,63 @@ public class NetworkServiceRecordManagement implements org.openbaton.nfvo.core.i
     public void deleteVNFDependency(String idNsr, String idVnfd) {
         //TODO the logic of this request for the moment deletes only the VNFR from the DB, need to be removed from the running NetworkServiceRecord
         nsrRepository.deleteVNFDependency(idNsr, idVnfd);
+    }
+
+    @Override
+    public void addVNFCInstance(String id, String idVnf, String idVdu, VNFComponent component) throws NotFoundException, BadFormatException, WrongStatusException {
+        NetworkServiceRecord networkServiceRecord = nsrRepository.findFirstById(id);
+        if (networkServiceRecord == null)
+            throw new NotFoundException("No NetworkServiceRecord found with id " + id);
+
+        if (networkServiceRecord.getStatus().ordinal() != Status.ACTIVE.ordinal()){
+            throw new WrongStatusException("NetworkServiceDescriptor must be in ACTIVE state");
+        }
+        VirtualNetworkFunctionRecord virtualNetworkFunctionRecord = null;
+        for (VirtualNetworkFunctionRecord virtualNetworkFunctionRecord1 : networkServiceRecord.getVnfr()){
+            if (virtualNetworkFunctionRecord1.getId().equals(idVnf)){
+                virtualNetworkFunctionRecord = virtualNetworkFunctionRecord1;
+                break;
+            }
+        }
+        if (virtualNetworkFunctionRecord == null)
+            throw new NotFoundException("No VirtualNetworkFunctionRecord found with id " + idVnf);
+
+        VirtualDeploymentUnit virtualDeploymentUnit = null;
+        for (VirtualDeploymentUnit virtualDeploymentUnit1 : virtualNetworkFunctionRecord.getVdu()){
+            if (virtualDeploymentUnit1.getId().equals(idVdu)){
+                virtualDeploymentUnit = virtualDeploymentUnit1;
+            }
+        }
+        if (virtualDeploymentUnit == null)
+            throw new NotFoundException("No VirtualDeploymentUnit found with id " + idVdu);
+
+        List<String> componentNetworks = new ArrayList<>();
+
+        for (VNFDConnectionPoint connectionPoint : component.getConnection_point()){
+            componentNetworks.add(connectionPoint.getVirtual_link_reference());
+        }
+
+        List<String> vnfrNetworks = new ArrayList<>();
+
+        for (InternalVirtualLink virtualLink : virtualNetworkFunctionRecord.getVirtual_link()){
+            vnfrNetworks.add(virtualLink.getName());
+        }
+
+        if (!vnfrNetworks.containsAll(componentNetworks)){
+            throw new BadFormatException("Not all the network exist in the InternalVirtualLinks. They need to be included in these names: " + vnfrNetworks);
+        }
+
+        log.info("Adding VNFComponent to VirtualNetworkFunctionRecord " + virtualNetworkFunctionRecord.getName());
+        virtualDeploymentUnit.getVnfc().add(component);
+        vnfcRepository.save(component);
+        nsrRepository.save(networkServiceRecord);
+        log.debug("new VNFComponent is " + component);
+
+        VNFRecordDependency dependencyTarget = dependencyManagement.getDependencyForAVNFRecordTarget(virtualNetworkFunctionRecord);
+
+        log.debug("Found Dependency: " + dependencyTarget);
+
+        vnfmManager.addVnfc(virtualNetworkFunctionRecord,virtualDeploymentUnit,component, dependencyTarget);
     }
 
     private NetworkServiceRecord deployNSR(NetworkServiceDescriptor networkServiceDescriptor) throws NotFoundException, BadFormatException, VimException, InterruptedException, ExecutionException, VimDriverException, QuotaExceededException {

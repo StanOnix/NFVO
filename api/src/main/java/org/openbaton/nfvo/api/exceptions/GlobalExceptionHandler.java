@@ -16,9 +16,11 @@
 
 package org.openbaton.nfvo.api.exceptions;
 
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import org.openbaton.exceptions.BadFormatException;
 import org.openbaton.exceptions.NetworkServiceIntegrityException;
 import org.openbaton.exceptions.NotFoundException;
+import org.openbaton.exceptions.WrongStatusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -53,7 +55,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(e, exc, headers, HttpStatus.UNPROCESSABLE_ENTITY, request);
     }
 
-    @ExceptionHandler({BadFormatException.class, NetworkServiceIntegrityException.class})
+    @ExceptionHandler({BadFormatException.class, NetworkServiceIntegrityException.class, WrongStatusException.class, UnrecognizedPropertyException.class})
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     protected ResponseEntity<Object> handleInvalidRequest(Exception e, WebRequest request) {
         log.error("Exception with message " + e.getMessage() + " was thrown");
