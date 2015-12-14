@@ -58,4 +58,5 @@ project(':repository').projectDir = file('repository')
 //
 //include nfvoName
 //project(':' + nfvoName).projectDir = nfvoDir
+include 'tosca-parser'
 

@@ -1,0 +1,114 @@
+tosca_definitions_version: tosca_simple_profile_for_type_1_0_0
+tosca_default_namespace:    # Optional. default namespace (schema, types version)
+description: example for VNF2
+metadata:
+  ID:                 # ID of this Network Service Descriptor
+  vendor: Fokus       # Provider or vendor of the Network Service
+  version: 0.1 Alpha  # Version of the Network Service Descriptor imports:
+imports:
+  - tosca_base_type_definition.yaml
+  # list of import statements for importing other definitions files
+
+dsl_definitions:
+  host_capabilities: &host_capabilities
+      disk_size: 10 GB
+      num_cpus: 1
+      mem_size: 4096 MB
+
+
+topology_template:
+  iperf-server: #VNF1
+    type: openbaton.type.VNF.GENERIC
+    properties:
+      configurations:
+        name: server-configurations
+        configurationParameters:
+          - key: value
+          - key2: value2
+      deployment_flavour:
+        - m1.small
+        - m1.BIGG
+      virtual_link:
+        - name: private
+    requirements:
+      - node: iperf-client
+        type: openbaton.relationships.server_connected_to_floating_ip
+        parameters:
+          - private
+      - target: VDU1
+        type: openbaton.relationships.HostedOn
+    interfaces:
+      Lifecycle: # lifecycle
+        INSTANCIATE:
+          - install.sh
+          - install-srv.sh
+  iperf-client:
+    type: openbaton.type.VNF.GENERIC
+    properties:
+      configurations:
+        name: server-configurations
+        configurationParameters:
+          - key: value
+          - key2: value2
+      deployment_flavour:
+        - m1.small
+        - m1.bigggg
+      virtual_link:
+          - name: private
+    requirements:
+      - server:
+          node: iperf-server
+#           releathionship: connection_server_client
+      - host:
+          node: VDU2
+          type: openbaton.relationships.HostedOn
+    interfaces:
+      openbaton.interfaces.lifecycle: # lifecycle
+        INSTANCIATE:
+          - install.sh
+        CONFIGURE:
+          - server_configure.sh
+#        CONFIGURE:
+#          implementation: server_configure.sh
+#          inputs:
+#            iperf_server_ip: { get_attribute: [iperf_server, private_address] }
+  VDU1:
+    type: openbaton.type.VDU
+    properties:
+      vm_image:
+        - ubuntu-14.04-server-cloudimg-amd64-disk1
+      scale_in_out: 2
+      vimInstanceName: vim-instance
+    requirements:
+       - virtual_link: [CP1]
+    capabilities:
+      host:
+        properties: *host_capabilities
+        valid_source_types: openbaton.type.VDU
+  VDU2:
+      type: openbaton.type.VDU
+      properties:
+        vm_image:
+          - ubuntu-14.04-server-cloudimg-amd64-disk1
+        scale_in_out: 2
+        vimInstanceName: vim-instance
+      requirements:
+         - virtual_link: [CP1]
+      capabilities:
+        host:
+          properties: *host_capabilities
+          valid_source_types: openbaton.type.VDU
+
+
+  CP1: #endpoints of VNF2
+    type: openbaton.type.CP
+    properties:
+      floatingIp: random
+    requirements:
+    virtualbinding: VDU2
+    virtual_link: private
+
+#relationships_templete:
+#  connection_server_client:
+
+
