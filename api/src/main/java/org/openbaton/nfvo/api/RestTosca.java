@@ -40,9 +40,6 @@ import org.yaml.snakeyaml.constructor.Constructor;
 
 public class RestTosca {
     private Logger log = LoggerFactory.getLogger(this.getClass());
-/*
-@Autowired
-private ToscaManagment toscaManagment;*/
 
     @Autowired
     private NetworkServiceDescriptorManagement networkServiceDescriptorManagement;

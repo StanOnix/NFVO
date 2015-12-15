@@ -20,6 +20,7 @@ import org.openbaton.catalogue.mano.common.VNFDeploymentFlavour;
 import org.openbaton.catalogue.mano.descriptor.*;
 import org.openbaton.catalogue.nfvo.Configuration;
 import org.openbaton.catalogue.nfvo.ConfigurationParameter;
+import org.openbaton.catalogue.nfvo.VNFPackage;
 import org.openbaton.tosca.catalogue.*;
 
 import java.util.*;
@@ -97,6 +98,10 @@ public class ParserTosca {
                     vnfd.setVersion(properties.getVersion());
                     vnfd.setVendor(properties.getVendor());
                     vnfd.setId(properties.getId());
+                    VNFPackage vnfPackage = new VNFPackage();
+                    vnfPackage.setScriptsLink(properties.getVnfPackage());
+                    System.out.println(properties);
+                    vnfd.setVnfPackage(vnfPackage);
                     Configuration configuration = new Configuration();
                     configuration.setName(properties.getConfigurations().getName());
                     Set<ConfigurationParameter> configurationParameters = new HashSet<>();

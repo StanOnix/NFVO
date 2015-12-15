@@ -28,10 +28,9 @@ topology_template:
         configurationParameters:
           - key: value
           - key2: value2
+#      vnfPackage: https://gitlab.fokus.fraunhofer.de/openbaton/scripts-test-public.git
       deployment_flavour:
         - flavour_key: m1.small
-      virtual_link:
-        - name: private
     requirements:
       - virtualLink: private
       - host:
@@ -53,6 +52,7 @@ topology_template:
         configurationParameters:
           - key: value
           - key2: value2
+#      vnfPackage: https://gitlab.fokus.fraunhofer.de/openbaton/scripts-test-public.git
       deployment_flavour:
         - flavour_key: m1.small
     requirements:
@@ -60,8 +60,6 @@ topology_template:
       - host:
           node: VDU2
           type: openbaton.relationships.HostedOn
-
-
     interfaces:
       openbaton.interfaces.lifecycle: # lifecycle
         INSTANCIATE:
@@ -77,7 +75,7 @@ topology_template:
     properties:
       vm_image:
         - ubuntu-14.04-server-cloudimg-amd64-disk1
-      scale_in_out: 2
+      scale_in_out: 4
       vimInstanceName: vim-instance
     requirements:
        - virtual_link: [CP1]
