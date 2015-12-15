@@ -68,7 +68,8 @@ public class RestConfiguration {
      *
      * @return List<Configuration>: The list of Configurations available
      */
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
     public Iterable<Configuration> findAll() {
         log.debug("Find all Configurations");
         return configurationManagement.query();
