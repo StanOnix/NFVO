@@ -99,7 +99,7 @@ public class ParserTosca {
                     vnfd.setVendor(properties.getVendor());
                     vnfd.setId(properties.getId());
                     VNFPackage vnfPackage = new VNFPackage();
-                    vnfPackage.setScriptsLink(properties.getVnfPackage());
+                    vnfPackage.setScriptsLink(properties.getScriptsLink());
                     System.out.println(properties);
                     vnfd.setVnfPackage(vnfPackage);
                     Configuration configuration = new Configuration();

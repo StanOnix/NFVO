@@ -28,7 +28,7 @@ topology_template:
         configurationParameters:
           - key: value
           - key2: value2
-#      vnfPackage: https://gitlab.fokus.fraunhofer.de/openbaton/scripts-test-public.git
+      scriptsLink: https://gitlab.fokus.fraunhofer.de/openbaton/scripts-test-public.git
       deployment_flavour:
         - flavour_key: m1.small
     requirements:
@@ -52,7 +52,7 @@ topology_template:
         configurationParameters:
           - key: value
           - key2: value2
-#      vnfPackage: https://gitlab.fokus.fraunhofer.de/openbaton/scripts-test-public.git
+      scriptsLink: sadasdasdasd
       deployment_flavour:
         - flavour_key: m1.small
     requirements:
@@ -75,7 +75,7 @@ topology_template:
     properties:
       vm_image:
         - ubuntu-14.04-server-cloudimg-amd64-disk1
-      scale_in_out: 4
+      scale_in_out: 2
       vimInstanceName: vim-instance
     requirements:
        - virtual_link: [CP1]
