@@ -193,7 +193,7 @@ public class NodeTemplate implements INodeTemplete {
 //                        System.out.println(inputsObj.get(configValues));
 //                        System.out.println(valuesArray);
                         for (String getValues : valuesArray.keySet()) {
-                            System.out.println(valuesArray.get(getValues));
+//                            System.out.println(valuesArray.get(getValues));
                             List<String> valueParamWithSource = (List<String>) valuesArray.get(getValues);
                             Set<String> valueParams = new LinkedHashSet<>(valueParamWithSource.subList(1, valueParamWithSource.size()));
                             VNFDependency dependency = new VNFDependency();

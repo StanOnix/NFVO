@@ -20,15 +20,16 @@ import org.openbaton.catalogue.mano.common.VNFDeploymentFlavour;
 import org.openbaton.catalogue.mano.descriptor.*;
 import org.openbaton.catalogue.nfvo.Configuration;
 import org.openbaton.catalogue.nfvo.ConfigurationParameter;
-import org.openbaton.catalogue.nfvo.VNFPackage;
 import org.openbaton.tosca.catalogue.*;
 import org.openbaton.tosca.catalogue.exceptions.NotSupportedType;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 /**
  * Created by dbo on 26/11/15.
  */
+@Service
 public class ParserTosca {
 
     public Definitions definitions;
@@ -36,9 +37,9 @@ public class ParserTosca {
     public Set<VirtualNetworkFunctionDescriptor> virtualNetworkFunctionDescriptors;
     public Set<VirtualDeploymentUnit> virtualDeploymentUnits;
 
-    public ParserTosca(Definitions definitions) {
-        this.definitions = definitions;
-    }
+//    public ParserTosca(Definitions definitions) {
+//        this.definitions = definitions;
+//    }
 
     public Definitions getDefinitions() {
         return definitions;
@@ -64,7 +65,8 @@ public class ParserTosca {
         this.virtualDeploymentUnits = virtualDeploymentUnits;
     }
 
-    public NetworkServiceDescriptor getNetworkServiceDescriptor() throws NotSupportedType {
+    public NetworkServiceDescriptor getNetworkServiceDescriptor(Definitions definitions) throws NotSupportedType {
+        this.definitions = definitions;
         this.networkServiceDescriptor = new NetworkServiceDescriptor();
         networkServiceDescriptor.setName(definitions.getTosca_definitions_version());
         networkServiceDescriptor.setVendor(definitions.getMetadata().getVendor());
@@ -92,10 +94,7 @@ public class ParserTosca {
                 vnfd.setVersion(properties.getVersion());
                 vnfd.setVendor(properties.getVendor());
                 vnfd.setId(properties.getId());
-                VNFPackage vnfPackage = new VNFPackage();
-                vnfPackage.setScriptsLink(properties.getScriptsLink());
-//                    System.out.println(properties);
-                vnfd.setVnfPackage(vnfPackage);
+                vnfd.setVnfPackageLocation(properties.getScriptsLink());
                 Configuration configuration = new Configuration();
                 configuration.setName(properties.getConfigurations().getName());
                 Set<ConfigurationParameter> configurationParameters = new HashSet<>();
@@ -197,7 +196,7 @@ public class ParserTosca {
                         PropertiesVdu propertiesV = (PropertiesVdu) nodeTemplate.getProperties();
                         nodeTemplate.getCapabilities();
                         vdu.setVm_image(new HashSet<String>(propertiesV.getVm_image()));
-                        System.out.println(nodeTemplate.getProperties());
+//                        System.out.println(nodeTemplate.getProperties());
                         vdu.setScale_in_out(propertiesV.getScale_in_out());
                         vdu.setVimInstanceName(propertiesV.getVimInstance());
                         List<Map<String, Object>> requirements = (List<Map<String, Object>>) nodeTemplate.getRequirements();
@@ -208,7 +207,7 @@ public class ParserTosca {
 
                                     List<String> virtual_links = (ArrayList<String>) req.get(keyReq);
                                     VNFDConnectionPoint cp = new VNFDConnectionPoint();
-                                    System.out.println(virtual_links);
+//                                    System.out.println(virtual_links);
                                     VNFComponent vnfc = new VNFComponent();
                                     Set<VNFDConnectionPoint> cps = new HashSet<>();
                                     vnfc.setConnection_point(cps);

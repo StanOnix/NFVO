@@ -40,23 +40,21 @@ import java.util.zip.ZipFile;
  */
 public class ToscaTest {
 
-//    @Test
+    @Test
     public void test() throws FileNotFoundException, NotSupportedType {
 
         InputStream tosca = new FileInputStream(new File("src/main/resources/toscav1.yaml"));
         Constructor constructor = new Constructor(Definitions.class);
         TypeDescription projectDesc = new TypeDescription(Definitions.class);
 
-//        projectDesc.putMapPropertyType("properties", String.class, PropertiesVnf.class);
-
         constructor.addTypeDescription(projectDesc);
 
         Yaml yaml = new Yaml(constructor);
         Definitions definitions = yaml.loadAs(tosca, Definitions.class);
         Gson gson = new Gson();
-        ParserTosca parserTosca = new ParserTosca(definitions);
+        ParserTosca parserTosca = new ParserTosca();
 
-        NetworkServiceDescriptor nsd = parserTosca.getNetworkServiceDescriptor();
+        NetworkServiceDescriptor nsd = parserTosca.getNetworkServiceDescriptor(definitions);
 
         System.out.println(gson.toJson(nsd));
 

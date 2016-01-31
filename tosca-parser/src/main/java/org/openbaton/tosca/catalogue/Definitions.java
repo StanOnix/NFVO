@@ -34,6 +34,7 @@ public class Definitions {
     private Map<String, Object> dsl_definitions;
     private Map<String, Relationships> relationships_templete;
 
+
     public Map<String, Relationships> getRelationships_templete() {
         return relationships_templete;
     }

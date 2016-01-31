@@ -18,6 +18,7 @@ package org.openbaton.nfvo.api;
 
 import org.openbaton.catalogue.mano.descriptor.NetworkServiceDescriptor;
 import org.openbaton.exceptions.BadFormatException;
+import org.openbaton.exceptions.CyclicDependenciesException;
 import org.openbaton.exceptions.NetworkServiceIntegrityException;
 import org.openbaton.exceptions.NotFoundException;
 import org.openbaton.nfvo.core.interfaces.NetworkServiceDescriptorManagement;
@@ -45,9 +46,12 @@ public class RestTosca {
     @Autowired
     private NetworkServiceDescriptorManagement networkServiceDescriptorManagement;
 
+    @Autowired
+    private ParserTosca parserTosca;
+
     @RequestMapping(method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.ACCEPTED)
-    private Yaml postTosca(@RequestBody String tosca) throws NetworkServiceIntegrityException, BadFormatException, NotFoundException, NotSupportedType {
+    private NetworkServiceDescriptor postTosca(@RequestBody String tosca) throws NetworkServiceIntegrityException, BadFormatException, NotFoundException, NotSupportedType, CyclicDependenciesException {
         log.debug(tosca.toString());
 
 
@@ -60,12 +64,12 @@ public class RestTosca {
         Definitions definitions = yaml.loadAs(tosca, Definitions.class);
         log.debug(definitions.toString());
 
-        ParserTosca parserTosca = new ParserTosca(definitions);
-        NetworkServiceDescriptor nsd = parserTosca.getNetworkServiceDescriptor();
 
-        networkServiceDescriptorManagement.onboard(nsd);
+        NetworkServiceDescriptor nsd = parserTosca.getNetworkServiceDescriptor(definitions);
 
-        return yaml;
+//        networkServiceDescriptorManagement.onboard(nsd);
+
+        return networkServiceDescriptorManagement.onboard(nsd);
     }
 
 }

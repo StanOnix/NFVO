@@ -28,7 +28,6 @@ public class VNFFaultManagementPolicy extends FaultManagementPolicy {
                 "id='" + id + '\'' +
                 ", version=" + version +
                 ", name='" + name + '\'' +
-//                ", cooldown=" + cooldown +
                 ", period=" + period +
                 ", severity=" + severity +
                 ", criteria=";

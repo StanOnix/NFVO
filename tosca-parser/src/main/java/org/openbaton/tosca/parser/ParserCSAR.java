@@ -26,6 +26,7 @@ import org.openbaton.openbaton.Image;
 import org.openbaton.openbaton.Metadata;
 import org.openbaton.tosca.catalogue.Definitions;
 import org.openbaton.utils.Utils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
@@ -40,6 +41,7 @@ import java.util.zip.ZipFile;
  */
 public class ParserCSAR {
 
+    @Autowired private ParserTosca parserTosca;
     private Definitions definition;
     private String author;
     private String version;
@@ -186,8 +188,8 @@ public class ParserCSAR {
 
                 Definitions d = fromFileToDefinitions(newPath + '/' + fileDefinition);
                 this.definition = d;
-                ParserTosca parserTosca = new ParserTosca(this.definition);
-                NetworkServiceDescriptor nsd = parserTosca.getNetworkServiceDescriptor();
+
+                NetworkServiceDescriptor nsd = parserTosca.getNetworkServiceDescriptor(this.definition);
                 craeteVNFPackage(nsd);
 
             }
@@ -245,7 +247,7 @@ public class ParserCSAR {
 
                 }
             }
-           Utils.createTar(new File(vnfd.getName()), new File(vnfd.getName() + ".tar"));
+            Utils.createTar(new File(vnfd.getName()), new File(vnfd.getName() + ".tar"));
 
         }
 
