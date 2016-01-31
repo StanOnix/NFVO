@@ -23,22 +23,22 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.openbaton.catalogue.mano.common.DeploymentFlavour;
 import org.openbaton.catalogue.mano.common.HighAvailability;
+import org.openbaton.catalogue.mano.common.ResiliencyLevel;
 import org.openbaton.catalogue.mano.common.VNFDeploymentFlavour;
 import org.openbaton.catalogue.mano.descriptor.NetworkServiceDescriptor;
 import org.openbaton.catalogue.mano.descriptor.VNFDependency;
 import org.openbaton.catalogue.mano.descriptor.VirtualDeploymentUnit;
 import org.openbaton.catalogue.mano.descriptor.VirtualNetworkFunctionDescriptor;
-import org.openbaton.catalogue.nfvo.NFVImage;
-import org.openbaton.catalogue.nfvo.Network;
-import org.openbaton.catalogue.nfvo.VimInstance;
-import org.openbaton.catalogue.nfvo.VnfmManagerEndpoint;
+import org.openbaton.catalogue.nfvo.*;
 import org.openbaton.exceptions.BadFormatException;
+import org.openbaton.exceptions.CyclicDependenciesException;
 import org.openbaton.exceptions.NetworkServiceIntegrityException;
 import org.openbaton.exceptions.NotFoundException;
 import org.openbaton.nfvo.core.api.NetworkServiceDescriptorManagement;
 import org.openbaton.nfvo.core.utils.NSDUtils;
 import org.openbaton.nfvo.repositories.NetworkServiceDescriptorRepository;
 import org.openbaton.nfvo.repositories.VimRepository;
+import org.openbaton.nfvo.repositories.VnfPackageRepository;
 import org.openbaton.nfvo.repositories.VnfmEndpointRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +64,8 @@ public class NetworkServiceDescriptorManagementClassSuiteTest {
     @Mock
     private NetworkServiceDescriptorRepository nsdRepository;
     @Mock
+    private VnfPackageRepository vnfPackageRepository ;
+    @Mock
     private NSDUtils nsdUtils;
     @Mock
     private VnfmEndpointRepository vnfmManagerEndpointRepository;
@@ -83,6 +85,8 @@ public class NetworkServiceDescriptorManagementClassSuiteTest {
         NetworkServiceDescriptor nsd_exp = createNetworkServiceDescriptor();
         when(nsdRepository.save(any(NetworkServiceDescriptor.class))).thenReturn(nsd_exp);
 
+        when(vnfPackageRepository.save(any(VNFPackage.class))).thenReturn(new VNFPackage());
+
         when(vnfmManagerEndpointRepository.findAll()).thenReturn(new ArrayList<VnfmManagerEndpoint>() {{
             VnfmManagerEndpoint vnfmManagerEndpoint = new VnfmManagerEndpoint();
             vnfmManagerEndpoint.setEndpoint("test");
@@ -97,7 +101,7 @@ public class NetworkServiceDescriptorManagementClassSuiteTest {
     }
 
     @Test
-    public void nsdManagementEnableTest() throws NotFoundException, BadFormatException, NetworkServiceIntegrityException {
+    public void nsdManagementEnableTest() throws NotFoundException, BadFormatException, NetworkServiceIntegrityException, CyclicDependenciesException {
         NetworkServiceDescriptor nsd_exp = createNetworkServiceDescriptor();
         when(vimRepository.findAll()).thenReturn(new ArrayList<VimInstance>() {{
             add(createVimInstance());
@@ -111,7 +115,7 @@ public class NetworkServiceDescriptorManagementClassSuiteTest {
     }
 
     @Test
-    public void nsdManagementDisableTest() throws NotFoundException, BadFormatException, NetworkServiceIntegrityException {
+    public void nsdManagementDisableTest() throws NotFoundException, BadFormatException, NetworkServiceIntegrityException, CyclicDependenciesException {
         NetworkServiceDescriptor nsd_exp = createNetworkServiceDescriptor();
         nsd_exp.setEnabled(true);
         when(vimRepository.findAll()).thenReturn(new ArrayList<VimInstance>() {{
@@ -143,13 +147,16 @@ public class NetworkServiceDescriptorManagementClassSuiteTest {
     }
 
     @Test
-    public void nsdManagementOnboardTest() throws NotFoundException, BadFormatException, NetworkServiceIntegrityException {
-
+    public void nsdManagementOnboardExceptionTest() throws NotFoundException, BadFormatException, NetworkServiceIntegrityException, CyclicDependenciesException {
         NetworkServiceDescriptor nsd_exp = createNetworkServiceDescriptor();
-
         when(vnfmManagerEndpointRepository.findAll()).thenReturn(new ArrayList<VnfmManagerEndpoint>());
         exception.expect(NotFoundException.class);
         nsdManagement.onboard(nsd_exp);
+    }
+    @Test
+    public void nsdManagementOnboardTest() throws NotFoundException, BadFormatException, NetworkServiceIntegrityException, CyclicDependenciesException {
+
+        NetworkServiceDescriptor nsd_exp = createNetworkServiceDescriptor();
 
         when(vnfmManagerEndpointRepository.findAll()).thenReturn(new ArrayList<VnfmManagerEndpoint>() {{
             VnfmManagerEndpoint vnfmManagerEndpoint = new VnfmManagerEndpoint();
@@ -165,7 +172,7 @@ public class NetworkServiceDescriptorManagementClassSuiteTest {
     }
 
     @Test
-    public void nsdManagementUpdateTest() throws NotFoundException, BadFormatException, NetworkServiceIntegrityException {
+    public void nsdManagementUpdateTest() throws NotFoundException, BadFormatException, NetworkServiceIntegrityException, CyclicDependenciesException {
         when(nsdRepository.findAll()).thenReturn(new ArrayList<NetworkServiceDescriptor>());
         NetworkServiceDescriptor nsd_exp = createNetworkServiceDescriptor();
 
@@ -235,15 +242,19 @@ public class NetworkServiceDescriptorManagementClassSuiteTest {
                 .setVdu(new HashSet<VirtualDeploymentUnit>() {
                     {
                         VirtualDeploymentUnit vdu = new VirtualDeploymentUnit();
-                        vdu.setHigh_availability(HighAvailability.ACTIVE_ACTIVE);
+                        HighAvailability highAvailability = new HighAvailability();
+                        highAvailability.setGeoRedundancy(false);
+                        highAvailability.setRedundancyScheme("1:N");
+                        highAvailability.setResiliencyLevel(ResiliencyLevel.ACTIVE_STANDBY_STATELESS);
+                        vdu.setHigh_availability(highAvailability);
                         vdu.setComputation_requirement("high_requirements");
                         VimInstance vimInstance = new VimInstance();
                         vimInstance.setName("vim_instance");
                         vimInstance.setType("test");
-                        vdu.setVimInstance(vimInstance);
                         add(vdu);
                     }
                 });
+        virtualNetworkFunctionDescriptor.setVnfPackageLocation("http://we.love.small.boobs.com");
         return virtualNetworkFunctionDescriptor;
     }
 

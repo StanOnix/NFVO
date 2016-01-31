@@ -19,10 +19,11 @@ package org.openbaton.nfvo.core.interfaces;
 import org.openbaton.catalogue.mano.descriptor.NetworkServiceDescriptor;
 import org.openbaton.catalogue.mano.descriptor.VNFComponent;
 import org.openbaton.catalogue.mano.record.NetworkServiceRecord;
+import org.openbaton.catalogue.mano.record.VNFCInstance;
 import org.openbaton.catalogue.mano.record.VirtualNetworkFunctionRecord;
 import org.openbaton.catalogue.nfvo.messages.Interfaces.NFVMessage;
 import org.openbaton.exceptions.*;
-import org.openbaton.vim.drivers.exceptions.VimDriverException;
+import org.openbaton.exceptions.VimDriverException;
 
 import java.util.concurrent.ExecutionException;
 
@@ -106,7 +107,7 @@ public interface NetworkServiceRecordManagement {
      * @param component
      * @return the new VNFCInstance
      */
-    void addVNFCInstance(String id, String idVnf, String idVdu, VNFComponent component) throws NotFoundException, BadFormatException, WrongStatusException;
+    void addVNFCInstance(String id, String idVnf, String idVdu, VNFComponent component,String mode) throws NotFoundException, BadFormatException, WrongStatusException;
 
     /**
      * This method will add a {@Link VNFCInstance} into a NetworkServiceRecord to a specific VirtualNetworkFunctionRecord. The VirtualDeploymentUnit is randomly chosen
@@ -137,4 +138,6 @@ public interface NetworkServiceRecordManagement {
      * @param idVNFCI
      */
     void deleteVNFCInstance(String id, String idVnf, String idVdu, String idVNFCI) throws NotFoundException, WrongStatusException, InterruptedException, ExecutionException, VimException;
+
+    void switchToRedundantVNFCInstance(String id, String idVnf, String idVdu, String idVNFC, String standby, VNFCInstance failedVnfcInstance) throws NotFoundException, WrongStatusException;
 }

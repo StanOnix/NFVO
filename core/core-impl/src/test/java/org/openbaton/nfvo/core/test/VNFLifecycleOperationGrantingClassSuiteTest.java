@@ -22,11 +22,8 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.openbaton.catalogue.mano.common.*;
 import org.openbaton.nfvo.core.core.VNFLifecycleOperationGranting;
-import org.openbaton.catalogue.mano.common.DeploymentFlavour;
-import org.openbaton.catalogue.mano.common.HighAvailability;
-import org.openbaton.catalogue.mano.common.LifecycleEvent;
-import org.openbaton.catalogue.mano.common.VNFDeploymentFlavour;
 import org.openbaton.catalogue.mano.descriptor.VNFComponent;
 import org.openbaton.catalogue.mano.descriptor.VirtualDeploymentUnit;
 import org.openbaton.catalogue.mano.record.VNFCInstance;
@@ -36,6 +33,7 @@ import org.openbaton.catalogue.nfvo.Network;
 import org.openbaton.catalogue.nfvo.Quota;
 import org.openbaton.catalogue.nfvo.VimInstance;
 import org.openbaton.exceptions.VimException;
+import org.openbaton.nfvo.repositories.VimRepository;
 import org.openbaton.nfvo.vim_interfaces.vim.VimBroker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashSet;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 /**
@@ -56,6 +55,8 @@ public class VNFLifecycleOperationGrantingClassSuiteTest {
     private VNFLifecycleOperationGranting vnfLifecycleOperationGranting;
 
     @Mock
+    private VimRepository vimInstanceRepository;
+    @Mock
     private VimBroker vimBroker;
 
     @Before
@@ -68,8 +69,9 @@ public class VNFLifecycleOperationGrantingClassSuiteTest {
     public void vnfLifecycleOperationGrantingTest() throws VimException {
         VirtualNetworkFunctionRecord vnfr = createVirtualNetworkFunctionRecord();
         boolean granted;
-
+        when(vimInstanceRepository.findFirstByName(anyString())).thenReturn(createVimInstance());
         when(vimBroker.getLeftQuota(any(VimInstance.class))).thenReturn(createMaxQuota());
+
         granted = vnfLifecycleOperationGranting.grantLifecycleOperation(vnfr);
         Assert.assertTrue(granted);
 
@@ -104,7 +106,11 @@ public class VNFLifecycleOperationGrantingClassSuiteTest {
     private VirtualDeploymentUnit createVDU(int suffix, VimInstance vimInstance) {
         VirtualDeploymentUnit vdu = new VirtualDeploymentUnit();
         vdu.setHostname("mocked_vdu_hostname_" + suffix);
-        vdu.setHigh_availability(HighAvailability.ACTIVE_ACTIVE);
+        HighAvailability highAvailability = new HighAvailability();
+        highAvailability.setGeoRedundancy(false);
+        highAvailability.setRedundancyScheme("1:N");
+        highAvailability.setResiliencyLevel(ResiliencyLevel.ACTIVE_STANDBY_STATELESS);
+        vdu.setHigh_availability(highAvailability);
         vdu.setVm_image(new HashSet<String>() {{
             add("mocked_image");
         }});
@@ -118,7 +124,6 @@ public class VNFLifecycleOperationGrantingClassSuiteTest {
         vdu.setVnfc_instance(vnfc_instance);
         vdu.setLifecycle_event(new HashSet<LifecycleEvent>());
         vdu.setMonitoring_parameter(new HashSet<String>());
-        vdu.setVimInstance(vimInstance);
         return vdu;
     }
 

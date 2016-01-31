@@ -35,7 +35,7 @@ import org.openbaton.nfvo.core.interfaces.ResourceManagement;
 import org.openbaton.nfvo.core.interfaces.VNFLifecycleOperationGranting;
 import org.openbaton.nfvo.repositories.NetworkServiceRecordRepository;
 import org.openbaton.nfvo.repositories.VNFRRepository;
-import org.openbaton.vim.drivers.exceptions.VimDriverException;
+import org.openbaton.exceptions.VimDriverException;
 import org.openbaton.vnfm.interfaces.manager.VnfmManager;
 import org.openbaton.vnfm.interfaces.manager.VnfmReceiver;
 import org.slf4j.Logger;
@@ -74,8 +74,6 @@ public class VnfmReceiverRest implements VnfmReceiver {
     private Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    @RequestMapping(value = "vnfm-core-actions", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.ACCEPTED)
     public String actionFinished(@RequestBody String nfvMessage) throws NotFoundException, VimException, ExecutionException, InterruptedException {
         //TODO rewrite this or better remove it
         log.debug("CORE: Received: " + nfvMessage);
@@ -89,28 +87,42 @@ public class VnfmReceiverRest implements VnfmReceiver {
             message = mapper.fromJson(mapper.toJson(nfvMessage), VnfmOrGenericMessage.class);
             log.trace("DESERIALIZED: " + message);
         }
-        return vnfmManager.executeAction(message, null);
+        return vnfmManager.executeAction(message);
+    }
+
+    @RequestMapping(value = "vnfm-core-actions-reply", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public void actionFinishedRest(@RequestBody JsonObject nfvMessage) throws InterruptedException, ExecutionException, VimException, NotFoundException {
+        this.actionFinished(mapper.toJson(nfvMessage));
+    }
+
+    @RequestMapping(value = "vnfm-core-actions", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public void actionFinishedVoidRest(@RequestBody JsonObject nfvMessage) throws InterruptedException, ExecutionException, VimException, NotFoundException {
+        this.actionFinishedVoid(mapper.toJson(nfvMessage));
     }
 
     @Override
     public void actionFinishedVoid(String nfvMessage) throws NotFoundException, VimException, ExecutionException, InterruptedException {
         log.debug("CORE: Received: " + nfvMessage);
-        String  action = mapper.fromJson(mapper.toJson(nfvMessage), JsonObject.class).get("action").getAsString();
+        String  action = mapper.fromJson(nfvMessage, JsonObject.class).get("action").getAsString();
         NFVMessage message;
         if (action.equals("INSTANTIATE")) {
-            message = mapper.fromJson(mapper.toJson(nfvMessage), VnfmOrInstantiateMessage.class);
+            message = mapper.fromJson(nfvMessage, VnfmOrInstantiateMessage.class);
             log.trace("DESERIALIZED: " + message);
         }
         else{
-            message = mapper.fromJson(mapper.toJson(nfvMessage), VnfmOrGenericMessage.class);
+            message = mapper.fromJson(nfvMessage, VnfmOrGenericMessage.class);
             log.trace("DESERIALIZED: " + message);
         }
-        vnfmManager.executeAction(message, null);
+        vnfmManager.executeAction(message);
     }
 
     @RequestMapping(value = "vnfm-core-grant", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.ACCEPTED)
     public NFVMessage grantLifecycleOperation(@RequestBody VnfmOrGenericMessage message) throws VimException {
+
+        log.debug("CORE: Received: " + message);
 
         VirtualNetworkFunctionRecord virtualNetworkFunctionRecord = message.getVirtualNetworkFunctionRecord();
         if (vnfLifecycleOperationGranting.grantLifecycleOperation(virtualNetworkFunctionRecord)) {

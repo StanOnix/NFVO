@@ -44,7 +44,7 @@ import org.openbaton.nfvo.repositories.NetworkServiceRecordRepository;
 import org.openbaton.nfvo.repositories.VimRepository;
 import org.openbaton.nfvo.vim_interfaces.vim.Vim;
 import org.openbaton.nfvo.vim_interfaces.vim.VimBroker;
-import org.openbaton.vim.drivers.exceptions.VimDriverException;
+import org.openbaton.exceptions.VimDriverException;
 import org.openbaton.vnfm.interfaces.manager.VnfmManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,7 +118,7 @@ public class NetworkServiceRecordManagementClassSuiteTest {
         when(vimBroker.getVim(anyString())).thenReturn(vim);
         when(vimBroker.getLeftQuota(any(VimInstance.class))).thenReturn(createQuota());
         VNFCInstance vnfcInstance = new VNFCInstance();
-        when(vim.allocate(any(VirtualDeploymentUnit.class), any(VirtualNetworkFunctionRecord.class), any(VNFComponent.class),anyString() ,anyMap())).thenReturn(new AsyncResult<>(vnfcInstance));
+        when(vim.allocate(any(VimInstance.class), any(VirtualDeploymentUnit.class), any(VirtualNetworkFunctionRecord.class), any(VNFComponent.class),anyString() ,anyMap())).thenReturn(new AsyncResult<>(vnfcInstance));
         when(vnfLifecycleOperationGranting.grantLifecycleOperation(any(VirtualNetworkFunctionRecord.class))).thenReturn(true);
         log.info("Starting test");
     }
@@ -196,10 +196,10 @@ public class NetworkServiceRecordManagementClassSuiteTest {
         event.getLifecycle_events().add("command_1");
         virtualNetworkFunctionDescriptor.getLifecycle_event().add(event);
         final VimInstance vimInstance = createVimInstance();
-        for (VirtualNetworkFunctionDescriptor virtualNetworkFunctionDescriptor1 : networkServiceDescriptor.getVnfd())
-            for (VirtualDeploymentUnit virtualDeploymentUnit : virtualNetworkFunctionDescriptor.getVdu()){
-                virtualDeploymentUnit.setVimInstance(vimInstance);
-            }
+//        for (VirtualNetworkFunctionDescriptor virtualNetworkFunctionDescriptor1 : networkServiceDescriptor.getVnfd())
+//            for (VirtualDeploymentUnit virtualDeploymentUnit : virtualNetworkFunctionDescriptor.getVdu()){
+//                virtualDeploymentUnit.setVimInstance(vimInstance);
+//            }
         when(nsdRepository.findFirstById(anyString())).thenReturn(networkServiceDescriptor);
         when(vimRepository.findAll()).thenReturn(new ArrayList<VimInstance>() {{
             add(vimInstance);
@@ -238,10 +238,10 @@ public class NetworkServiceRecordManagementClassSuiteTest {
             add(vimInstance);
         }});
 
-        for (VirtualNetworkFunctionDescriptor virtualNetworkFunctionDescriptor1 : networkServiceDescriptor.getVnfd())
-            for (VirtualDeploymentUnit virtualDeploymentUnit : virtualNetworkFunctionDescriptor.getVdu()){
-                virtualDeploymentUnit.setVimInstance(vimInstance);
-            }
+//        for (VirtualNetworkFunctionDescriptor virtualNetworkFunctionDescriptor1 : networkServiceDescriptor.getVnfd())
+//            for (VirtualDeploymentUnit virtualDeploymentUnit : virtualNetworkFunctionDescriptor.getVdu()){
+//                virtualDeploymentUnit.setVimInstance(vimInstance);
+//            }
 
         /**
          * Real Method
@@ -326,7 +326,11 @@ public class NetworkServiceRecordManagementClassSuiteTest {
                 vdu.setVm_image(new HashSet<String>() {{
                     add("mocked_image");
                 }});
-                vdu.setHigh_availability(HighAvailability.ACTIVE_ACTIVE);
+                HighAvailability highAvailability = new HighAvailability();
+                highAvailability.setGeoRedundancy(false);
+                highAvailability.setRedundancyScheme("1:N");
+                highAvailability.setResiliencyLevel(ResiliencyLevel.ACTIVE_STANDBY_STATELESS);
+                vdu.setHigh_availability(highAvailability);
                 vdu.setComputation_requirement("high_requirements");
                 vdu.setVnfc(new HashSet<VNFComponent>());
                 vdu.setLifecycle_event(new HashSet<LifecycleEvent>());
@@ -340,7 +344,6 @@ public class NetworkServiceRecordManagementClassSuiteTest {
                 VimInstance vimInstance = new VimInstance();
                 vimInstance.setName("vim_instance");
                 vimInstance.setType("test");
-                vdu.setVimInstance(vimInstance);
                 add(vdu);
             }
         });
@@ -374,7 +377,11 @@ public class NetworkServiceRecordManagementClassSuiteTest {
                 .setVdu(new HashSet<VirtualDeploymentUnit>() {
                     {
                         VirtualDeploymentUnit vdu = new VirtualDeploymentUnit();
-                        vdu.setHigh_availability(HighAvailability.ACTIVE_ACTIVE);
+                        HighAvailability highAvailability = new HighAvailability();
+                        highAvailability.setGeoRedundancy(false);
+                        highAvailability.setRedundancyScheme("1:N");
+                        highAvailability.setResiliencyLevel(ResiliencyLevel.ACTIVE_STANDBY_STATELESS);
+                        vdu.setHigh_availability(highAvailability);
                         vdu.setVm_image(new HashSet<String>() {{
                             add("mocked_image");
                         }});
@@ -392,7 +399,6 @@ public class NetworkServiceRecordManagementClassSuiteTest {
                         VimInstance vimInstance = new VimInstance();
                         vimInstance.setName("vim_instance");
                         vimInstance.setType("test");
-                        vdu.setVimInstance(vimInstance);
                         add(vdu);
                     }
                 });

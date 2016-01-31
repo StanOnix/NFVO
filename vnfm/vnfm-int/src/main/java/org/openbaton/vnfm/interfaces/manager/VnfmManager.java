@@ -29,6 +29,7 @@ import org.openbaton.exceptions.VimException;
 import org.openbaton.vnfm.interfaces.sender.VnfmSender;
 import org.springframework.scheduling.annotation.Async;
 
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -36,13 +37,15 @@ import java.util.concurrent.Future;
  * Created by lto on 26/05/15.
  */
 public interface VnfmManager {
+    Map<String, Map<String, Integer>> getVnfrNames();
+
     void init();
 
     Future<Void> deploy(NetworkServiceDescriptor networkServiceDescriptor, NetworkServiceRecord networkServiceRecord) throws NotFoundException;
 
     VnfmSender getVnfmSender(EndpointType endpointType);
 
-    String executeAction(NFVMessage message, String tempDestination) throws VimException, NotFoundException, ExecutionException, InterruptedException;
+    String executeAction(NFVMessage message) throws VimException, NotFoundException, ExecutionException, InterruptedException;
 
     @Async
     Future<Void> sendMessageToVNFR(VirtualNetworkFunctionRecord virtualNetworkFunctionRecordDest, NFVMessage nfvMessage) throws NotFoundException;
@@ -50,9 +53,11 @@ public interface VnfmManager {
     Future<Void> release(VirtualNetworkFunctionRecord virtualNetworkFunctionRecord) throws NotFoundException;
 
     @Async
-    Future<Void> addVnfc(VirtualNetworkFunctionRecord virtualNetworkFunctionRecord, VNFComponent component, VNFRecordDependency dependency) throws NotFoundException;
+    Future<Void> addVnfc(VirtualNetworkFunctionRecord virtualNetworkFunctionRecord, VNFComponent component, VNFRecordDependency dependency,String mode) throws NotFoundException;
 
     Future<Void> removeVnfcDependency(VirtualNetworkFunctionRecord virtualNetworkFunctionRecord, VNFCInstance vnfcInstance) throws NotFoundException;
 
     void findAndSetNSRStatus(VirtualNetworkFunctionRecord virtualNetworkFunctionRecord);
+
+    void removeVnfrName(String nsdId, String vnfrName);
 }

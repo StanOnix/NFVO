@@ -23,7 +23,7 @@ import org.openbaton.catalogue.nfvo.messages.Interfaces.NFVMessage;
 import org.openbaton.exceptions.*;
 import org.openbaton.nfvo.api.exceptions.StateException;
 import org.openbaton.nfvo.core.interfaces.NetworkServiceRecordManagement;
-import org.openbaton.vim.drivers.exceptions.VimDriverException;
+import org.openbaton.exceptions.VimDriverException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -177,9 +177,8 @@ public class RestNetworkServiceRecord {
     @ResponseStatus(HttpStatus.CREATED)
     public void postVNFCInstance(@RequestBody @Valid VNFComponent component, @PathVariable("id") String id, @PathVariable("idVnf") String idVnf, @PathVariable("idVdu") String idVdu) throws NotFoundException, BadFormatException, WrongStatusException {
         log.trace("Received: " + component);
-        networkServiceRecordManagement.addVNFCInstance(id, idVnf, idVdu, component);
+        networkServiceRecordManagement.addVNFCInstance(id, idVnf, idVdu, component,"");
     }
-
 
     @RequestMapping(value = "{id}/vnfrecords/{idVnf}/vdunits/vnfcinstances", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
@@ -187,6 +186,22 @@ public class RestNetworkServiceRecord {
         log.trace("Received: " + component);
         networkServiceRecordManagement.addVNFCInstance(id, idVnf, component);
     }
+
+    /////// Fault management utilities
+    @RequestMapping(value = "{id}/vnfrecords/{idVnf}/vdunits/{idVdu}/vnfcinstances/standby", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public void postStandByVNFCInstance(@RequestBody @Valid VNFComponent component, @PathVariable("id") String id, @PathVariable("idVnf") String idVnf, @PathVariable("idVdu") String idVdu) throws NotFoundException, BadFormatException, WrongStatusException {
+        log.debug("PostStandByVNFCInstance received the component: " + component);
+        networkServiceRecordManagement.addVNFCInstance(id, idVnf, idVdu, component,"standby");
+    }
+
+    @RequestMapping(value = "{id}/vnfrecords/{idVnf}/vdunits/{idVdu}/vnfcinstances/{idVNFC}/switchtostandby", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public void switchToRendundantVNFCInstance(@RequestBody @Valid VNFCInstance failedVnfcInstance,@PathVariable("id") String id, @PathVariable("idVnf") String idVnf, @PathVariable("idVdu") String idVdu, @PathVariable("idVNFC") String idVNFC) throws NotFoundException, BadFormatException, WrongStatusException {
+        log.debug("switch to a standby component");
+        networkServiceRecordManagement.switchToRedundantVNFCInstance(id, idVnf, idVdu, idVNFC,"standby",failedVnfcInstance);
+    }
+    ////////////
 
     @RequestMapping(value = "{id}/vnfrecords/{idVnf}/vdunits/{idVdu}/vnfcinstances/{idVNFCI}", method = RequestMethod.DELETE)
     @ResponseStatus(HttpStatus.NO_CONTENT)

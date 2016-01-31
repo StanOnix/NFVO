@@ -24,8 +24,9 @@ import org.openbaton.catalogue.mano.record.VirtualNetworkFunctionRecord;
 import org.openbaton.catalogue.nfvo.Server;
 import org.openbaton.catalogue.nfvo.VimInstance;
 import org.openbaton.exceptions.VimException;
+import org.openbaton.nfvo.repositories.VimRepository;
 import org.openbaton.nfvo.vim_interfaces.vim.VimBroker;
-import org.openbaton.vim.drivers.exceptions.VimDriverException;
+import org.openbaton.exceptions.VimDriverException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,9 +66,14 @@ public class ResourceManagement implements org.openbaton.nfvo.core.interfaces.Re
     private String emsAutodelete;
     @Value("${nfvo.ems.queue.heartbeat:}")
     private String emsHeartbeat;
+    @Value("${nfvo.ems.version:}")
+    private String emsVersion;
     private Logger log = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private VimBroker vimBroker;
+    @Autowired
+    private VimRepository vimInstanceRepository;
+
     private static final Pattern PATTERN = Pattern.compile("^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
 
 
@@ -91,7 +97,8 @@ public class ResourceManagement implements org.openbaton.nfvo.core.interfaces.Re
     public List<String> allocate(VirtualDeploymentUnit virtualDeploymentUnit, VirtualNetworkFunctionRecord virtualNetworkFunctionRecord) throws VimException, VimDriverException, ExecutionException, InterruptedException {
         List<Future<VNFCInstance>> instances = new ArrayList<>();
         org.openbaton.nfvo.vim_interfaces.resource_management.ResourceManagement vim;
-        vim = vimBroker.getVim(virtualDeploymentUnit.getVimInstance().getType());
+        VimInstance vimInstance = vimInstanceRepository.findFirstByName(virtualDeploymentUnit.getVimInstanceName());
+        vim = vimBroker.getVim(vimInstance.getType());
         log.debug("Executing allocate with Vim: " + vim.getClass().getSimpleName());
         log.debug("NAME: " + virtualNetworkFunctionRecord.getName());
         log.debug("ID: " + virtualDeploymentUnit.getId());
@@ -107,7 +114,7 @@ public class ResourceManagement implements org.openbaton.nfvo.core.interfaces.Re
                     floatingIps.put(connectionPoint.getVirtual_link_reference(), connectionPoint.getFloatingIp());
             }
             log.info("FloatingIp chosen are: " + floatingIps);
-            Future<VNFCInstance> added = vim.allocate(virtualDeploymentUnit, virtualNetworkFunctionRecord, component, userData, floatingIps);
+            Future<VNFCInstance> added = vim.allocate(vimInstance,virtualDeploymentUnit, virtualNetworkFunctionRecord, component, userData, floatingIps);
             instances.add(added);
         }
         List<String> ids = new ArrayList<>();
@@ -130,14 +137,14 @@ public class ResourceManagement implements org.openbaton.nfvo.core.interfaces.Re
         return ids;
     }
 
-    private String allocateVNFC(VirtualDeploymentUnit virtualDeploymentUnit, VirtualNetworkFunctionRecord virtualNetworkFunctionRecord, org.openbaton.nfvo.vim_interfaces.resource_management.ResourceManagement vim, VNFComponent component) throws InterruptedException, ExecutionException, VimException, VimDriverException {
+    private String allocateVNFC(VimInstance vimInstance, VirtualDeploymentUnit virtualDeploymentUnit, VirtualNetworkFunctionRecord virtualNetworkFunctionRecord, org.openbaton.nfvo.vim_interfaces.resource_management.ResourceManagement vim, VNFComponent component) throws InterruptedException, ExecutionException, VimException, VimDriverException {
         log.trace("UserData is: " + getUserData(virtualNetworkFunctionRecord.getEndpoint()));
         Map<String, String> floatinIps = new HashMap<>();
         for (VNFDConnectionPoint connectionPoint : component.getConnection_point()) {
             floatinIps.put(connectionPoint.getVirtual_link_reference(), connectionPoint.getFloatingIp());
         }
         log.info("FloatingIp chosen are: " + floatinIps);
-        VNFCInstance added = vim.allocate(virtualDeploymentUnit, virtualNetworkFunctionRecord, component, getUserData(virtualNetworkFunctionRecord.getEndpoint()), floatinIps).get();
+        VNFCInstance added = vim.allocate(vimInstance, virtualDeploymentUnit, virtualNetworkFunctionRecord, component, getUserData(virtualNetworkFunctionRecord.getEndpoint()), floatinIps).get();
         virtualDeploymentUnit.getVnfc_instance().add(added);
         if (floatinIps.size() > 0 && added.getFloatingIps().size() == 0)
             log.warn("NFVO wasn't able to associate FloatingIPs. Is there enough available");
@@ -157,22 +164,25 @@ public class ResourceManagement implements org.openbaton.nfvo.core.interfaces.Re
             emsHeartbeat = "60";
         if (emsAutodelete == null || emsAutodelete.equals(""))
             emsAutodelete = "true";
+        if (emsVersion == null || emsVersion.equals(""))
+            emsAutodelete = "0.15-SNAPSHOT";
         brokerIp = brokerIp.trim();
-        if (brokerIp == null || brokerIp.equals("") || !PATTERN.matcher(brokerIp).matches())
+        if (brokerIp == null || brokerIp.equals("") || !PATTERN.matcher(brokerIp).matches()) {
             throw new VimException("nfvo.rabbit.brokerIp is null, empty or not a valid ip please set a correct ip");
+        }
 
         String result = "#!/bin/bash\n" +
                 "adduser user\n" +
                 "echo -e \"password\\npassword\" | (passwd user)\n" +
                 "echo \"deb http://get.openbaton.org/repos/apt/debian/ ems main\" >> /etc/apt/sources.list\n" +
-                "apt-get install git -y\n" +
                 "wget -O - http://get.openbaton.org/public.gpg.key | apt-key add -\n" +
-                "apt-get update\n";
+                "apt-get update\n" +
+                "apt-get install git -y\n";
 
         if (monitoringIp != null && !monitoringIp.equals("")) {
             result += " echo \"Installing zabbix-agent for server at _address\"\n" +
                     "sudo apt-get install -y zabbix-agent\n" +
-                    "sudo sed -i -e 's/ServerActive=127.0.0.1/ServerActive=" + monitoringIp + ":10051/g' -e 's/Server=127.0.0.1/Server=" + monitoringIp + "/g' -e 's/Hostname=/#Hostname=/g' /etc/zabbix/zabbix_agentd.conf\n" +
+                    "sudo sed -i -e 's/ServerActive=127.0.0.1/ServerActive=" + monitoringIp + ":10051/g' -e 's/Server=127.0.0.1/Server=" + monitoringIp + "/g' -e 's/Hostname=Zabbix server/#Hostname=/g' /etc/zabbix/zabbix_agentd.conf\n" +
                     "sudo service zabbix-agent restart\n" +
                     "sudo rm zabbix-release_2.2-1+precise_all.deb\n" +
                     "echo \"finished installing zabbix-agent!\"\n";
@@ -180,7 +190,7 @@ public class ResourceManagement implements org.openbaton.nfvo.core.interfaces.Re
 
         result +=
 //                "apt-get install -y python-pip\n" +
-                "apt-get install -y ems-0.15-SNAPSHOT\n" +
+                "apt-get install -y ems-" + emsVersion + "\n" +
                         "mkdir -p /etc/openbaton/ems\n" +
                         "echo [ems] > /etc/openbaton/ems/conf.ini\n" +
                         "echo orch_ip=" + brokerIp + " >> /etc/openbaton/ems/conf.ini\n" +
@@ -227,9 +237,10 @@ public class ResourceManagement implements org.openbaton.nfvo.core.interfaces.Re
     @Override
     @Async
     public Future<Void> release(VirtualDeploymentUnit virtualDeploymentUnit, VNFCInstance vnfcInstance) throws VimException, ExecutionException, InterruptedException {
-        org.openbaton.nfvo.vim_interfaces.resource_management.ResourceManagement vim = vimBroker.getVim(virtualDeploymentUnit.getVimInstance().getType());
+        VimInstance vimInstance = vimInstanceRepository.findFirstByName(virtualDeploymentUnit.getVimInstanceName());
+        org.openbaton.nfvo.vim_interfaces.resource_management.ResourceManagement vim = vimBroker.getVim(vimInstance.getType());
         log.debug("Removing vnfcInstance: " + vnfcInstance);
-        vim.release(vnfcInstance, virtualDeploymentUnit.getVimInstance()).get();
+        vim.release(vnfcInstance, vimInstance).get();
         virtualDeploymentUnit.getVnfc().remove(vnfcInstance.getVnfComponent());
         return new AsyncResult<>(null);
     }
@@ -257,10 +268,11 @@ public class ResourceManagement implements org.openbaton.nfvo.core.interfaces.Re
     @Override
     public String allocate(VirtualDeploymentUnit virtualDeploymentUnit, VirtualNetworkFunctionRecord virtualNetworkFunctionRecord, VNFComponent componentToAdd) throws InterruptedException, ExecutionException, VimException, VimDriverException {
         org.openbaton.nfvo.vim_interfaces.resource_management.ResourceManagement vim;
-        vim = vimBroker.getVim(virtualDeploymentUnit.getVimInstance().getType());
+        VimInstance vimInstance = vimInstanceRepository.findFirstByName(virtualDeploymentUnit.getVimInstanceName());
+        vim = vimBroker.getVim(vimInstance.getType());
         log.debug("Executing allocate with Vim: " + vim.getClass().getSimpleName());
         log.debug("NAME: " + virtualNetworkFunctionRecord.getName());
         log.debug("ID: " + virtualDeploymentUnit.getId());
-        return allocateVNFC(virtualDeploymentUnit, virtualNetworkFunctionRecord, vim, componentToAdd);
+        return allocateVNFC(vimInstance, virtualDeploymentUnit, virtualNetworkFunctionRecord, vim, componentToAdd);
     }
 }
