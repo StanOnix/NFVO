@@ -16,12 +16,12 @@
 
 package org.openbaton.tosca.catalogue;
 
-
+import org.openbaton.tosca.catalogue.interfaces.IProperties;
 /**
  * Created by dbo on 11/11/15.
  * Property Object
  */
-public class Properties {
+public class Properties implements IProperties {
     private String id;
     private String vendor;
     private String version;

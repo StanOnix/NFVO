@@ -22,6 +22,7 @@ import org.openbaton.catalogue.nfvo.Configuration;
 import org.openbaton.catalogue.nfvo.ConfigurationParameter;
 import org.openbaton.catalogue.nfvo.VNFPackage;
 import org.openbaton.tosca.catalogue.*;
+import org.openbaton.tosca.catalogue.exceptions.NotSupportedType;
 
 import java.util.*;
 
@@ -63,108 +64,94 @@ public class ParserTosca {
         this.virtualDeploymentUnits = virtualDeploymentUnits;
     }
 
-    public NetworkServiceDescriptor getNetworkServiceDescriptor() {
+    public NetworkServiceDescriptor getNetworkServiceDescriptor() throws NotSupportedType {
         this.networkServiceDescriptor = new NetworkServiceDescriptor();
         networkServiceDescriptor.setName(definitions.getTosca_definitions_version());
         networkServiceDescriptor.setVendor(definitions.getMetadata().getVendor());
         networkServiceDescriptor.setVersion(definitions.getMetadata().getVersion());
         networkServiceDescriptor.setVld(new HashSet<VirtualLinkDescriptor>());
+        NodeTemplates nodeTemplates = definitions.getTopology_template();
+        for (String nodeName : nodeTemplates.getNode_templates().keySet()) {
+            String type = nodeTemplates.getNode_templates().get(nodeName).getType();
+            NodeTemplate nodeTemplate = nodeTemplates.getNode_templates().get(nodeName);
 
-        for (String nodeName : definitions.getTopology_template().keySet()) {
-            String type = definitions.getTopology_template().get(nodeName).getType();
-            NodeTemplate nodeTemplate = definitions.getTopology_template().get(nodeName);
-//            switch (type) {
-         /*       case "VNF":
-                case "tosca:VNF":*/
-//                case "openbaton.type.VNF.GENERIC":
-                if(type.startsWith("openbaton.type.VNF.")) {
-
-                    System.out.println(type.substring(type.lastIndexOf(".")+1));
-
-                    VirtualNetworkFunctionDescriptor vnfd = new VirtualNetworkFunctionDescriptor();
-                    Set<InternalVirtualLink> internaVLs = new HashSet<InternalVirtualLink>();
-                    Set<VirtualDeploymentUnit> virtualDeploymentUnits = new HashSet<VirtualDeploymentUnit>();
-                    vnfd.setVdu(virtualDeploymentUnits);
-                    vnfd.setVirtual_link(internaVLs);
-                    vnfd.setName(nodeName.toString());
-                    String endPoint = type.substring(type.lastIndexOf(".") + 1);
-
-                    vnfd.setType(endPoint.toLowerCase());
-                    System.out.println(endPoint.toLowerCase());
-                    System.out.println(type.startsWith("openbaton.type.VNF."));
-                    vnfd.setEndpoint(endPoint.toLowerCase());
-                    vnfd.setLifecycle_event((Set<LifecycleEvent>) nodeTemplate.getInterfaces());
-                    PropertiesVnf properties = (PropertiesVnf) nodeTemplate.getProperties();
-                    vnfd.setVersion(properties.getVersion());
-                    vnfd.setVendor(properties.getVendor());
-                    vnfd.setId(properties.getId());
-                    VNFPackage vnfPackage = new VNFPackage();
-                    vnfPackage.setScriptsLink(properties.getScriptsLink());
-                    System.out.println(properties);
-                    vnfd.setVnfPackage(vnfPackage);
-                    Configuration configuration = new Configuration();
-                    configuration.setName(properties.getConfigurations().getName());
-                    Set<ConfigurationParameter> configurationParameters = new HashSet<>();
-                    for (HashMap<String, String> config : properties.getConfigurations().getConfigurationParameters()) {
-                        for (String key : config.keySet()) {
-                            ConfigurationParameter cfgP = new ConfigurationParameter();
-                            cfgP.setConfKey(key);
-                            cfgP.setValue(config.get(key));
-                            configurationParameters.add(cfgP);
-                        }
-
-                    }
-                    configuration.setConfigurationParameters(configurationParameters);
-                    List<Map<String, Object>> requirements = (List<Map<String, Object>>) nodeTemplate.getRequirements();
-
-                    for (Map<String, Object> req : requirements) {
-                        for (String key : req.keySet()) {
-//                            System.out.println("key " + key + " " + ((Map<String, Object>) req.get(key)).get("node"));
-                            if (key.equals("host")) {
-                                String nodeRequest = (String) ((Map<String, Object>) req.get(key)).get("node");
-
-                                vnfd.getVdu().add((VirtualDeploymentUnit) getObject(nodeRequest));
-
-
-                            }
-                            if (key.equals("virtualLink")) {
-                                InternalVirtualLink ivl = new InternalVirtualLink();
-                                String linkName = (String) req.get(key);
-                                ivl.setName(linkName);
-                                vnfd.getVirtual_link().add(ivl);
-
-                            }
-
-                        }
-                    }
-                    Set<VNFDeploymentFlavour> deploymentFlavours = new HashSet<VNFDeploymentFlavour>();
-                    for (HashMap<String, String> deploy_flavour : properties.getDeployment_flavour()) {
-                        for (String key : deploy_flavour.keySet()) {
-                            VNFDeploymentFlavour dp = new VNFDeploymentFlavour();
-                            dp.setFlavour_key(deploy_flavour.get(key));
-                            deploymentFlavours.add(dp);
-//                            System.out.println(deploymentFlavours);
-
-                        }
-
+            if (type.startsWith("openbaton.type.VNF.")) {
+                VirtualNetworkFunctionDescriptor vnfd = new VirtualNetworkFunctionDescriptor();
+                Set<InternalVirtualLink> internaVLs = new HashSet<InternalVirtualLink>();
+                Set<VirtualDeploymentUnit> virtualDeploymentUnits = new HashSet<VirtualDeploymentUnit>();
+                vnfd.setVdu(virtualDeploymentUnits);
+                vnfd.setVirtual_link(internaVLs);
+                vnfd.setName(nodeName.toString());
+                String endPoint = type.substring(type.lastIndexOf(".") + 1);
+                vnfd.setType(endPoint.toLowerCase());
+                vnfd.setEndpoint(endPoint.toLowerCase());
+                nodeTemplate.setNSDandSourceName(this.networkServiceDescriptor, nodeName);
+                vnfd.setLifecycle_event((Set<LifecycleEvent>) nodeTemplate.getInterfaces());
+//                System.out.println(this.networkServiceDescriptor);
+                PropertiesVnf properties = (PropertiesVnf) nodeTemplate.getProperties();
+                vnfd.setVersion(properties.getVersion());
+                vnfd.setVendor(properties.getVendor());
+                vnfd.setId(properties.getId());
+                VNFPackage vnfPackage = new VNFPackage();
+                vnfPackage.setScriptsLink(properties.getScriptsLink());
+//                    System.out.println(properties);
+                vnfd.setVnfPackage(vnfPackage);
+                Configuration configuration = new Configuration();
+                configuration.setName(properties.getConfigurations().getName());
+                Set<ConfigurationParameter> configurationParameters = new HashSet<>();
+                for (HashMap<String, String> config : properties.getConfigurations().getConfigurationParameters()) {
+                    for (String key : config.keySet()) {
+                        ConfigurationParameter cfgP = new ConfigurationParameter();
+                        cfgP.setConfKey(key);
+                        cfgP.setValue(config.get(key));
+                        configurationParameters.add(cfgP);
                     }
 
-                    vnfd.setDeployment_flavour(deploymentFlavours);
-                    networkServiceDescriptor.getVnfd().add(vnfd);
+                }
+                configuration.setConfigurationParameters(configurationParameters);
+                List<Map<String, Object>> requirements = (List<Map<String, Object>>) nodeTemplate.getRequirements();
 
+                for (Map<String, Object> req : requirements) {
+                    for (String key : req.keySet()) {
+                        if (key.equals("host")) {
+                            String nodeRequest = (String) ((Map<String, Object>) req.get(key)).get("node");
+                            vnfd.getVdu().add((VirtualDeploymentUnit) getObject(nodeRequest));
+                        }
+                        if (key.equals("virtualLink")) {
+                            InternalVirtualLink ivl = new InternalVirtualLink();
+                            String linkName = (String) req.get(key);
+                            ivl.setName(linkName);
+                            vnfd.getVirtual_link().add(ivl);
+                        }
+                    }
+                }
+                Set<VNFDeploymentFlavour> deploymentFlavours = new HashSet<VNFDeploymentFlavour>();
+                for (HashMap<String, String> deploy_flavour : properties.getDeployment_flavour()) {
+                    for (String key : deploy_flavour.keySet()) {
+                        VNFDeploymentFlavour dp = new VNFDeploymentFlavour();
+                        dp.setFlavour_key(deploy_flavour.get(key));
+                        deploymentFlavours.add(dp);
+                    }
+                }
+
+                vnfd.setDeployment_flavour(deploymentFlavours);
+                networkServiceDescriptor.getVnfd().add(vnfd);
+
+                if (networkServiceDescriptor.getVnf_dependency() == null)
                     networkServiceDescriptor.setVnf_dependency(new HashSet<VNFDependency>());
-                    networkServiceDescriptor.getVnf_dependency().add(getVNFDependency());
+
+                networkServiceDescriptor.getVnf_dependency().add(getVNFDependency());
 
 
-                }
-
-                if(type.equals("tosca.nodes.nfv.VL")) {
-                    VirtualLinkDescriptor vld = new VirtualLinkDescriptor();
-                    vld.setName(nodeName);
-                    networkServiceDescriptor.getVld().add(vld);
-
-                }
             }
+
+            if (type.equals("tosca.nodes.nfv.VL")) {
+                VirtualLinkDescriptor vld = new VirtualLinkDescriptor();
+                vld.setName(nodeName);
+                networkServiceDescriptor.getVld().add(vld);
+
+            }
+        }
 
 //        }
         return this.networkServiceDescriptor;
@@ -185,18 +172,22 @@ public class ParserTosca {
     public VNFDependency getVNFDependency() {
         VNFDependency vnfDependency = new VNFDependency();
         Relationships relationships = definitions.getRelationships_templete().get(("connection_server_client"));
-        vnfDependency.setSource(findVNFD(relationships.getSource()));
-        vnfDependency.setTarget(findVNFD(relationships.getTarget()));
+        VirtualNetworkFunctionDescriptor tempVnfd = new VirtualNetworkFunctionDescriptor();
+        tempVnfd.setName(relationships.getSource());
+        vnfDependency.setSource(tempVnfd);
+        tempVnfd.setName(relationships.getTarget());
+        vnfDependency.setTarget(tempVnfd);
         vnfDependency.setParameters(relationships.getParameters());
         return vnfDependency;
 
     }
 
-    public Object getObject(String name) {
+    public Object getObject(String name) throws NotSupportedType {
         VirtualDeploymentUnit vdu = new VirtualDeploymentUnit();
-        for (String key : definitions.getTopology_template().keySet()) {
-            String type = definitions.getTopology_template().get(name).getType();
-            NodeTemplate nodeTemplate = definitions.getTopology_template().get(name);
+        NodeTemplates nodeTemplates = definitions.getTopology_template();
+        for (String key : nodeTemplates.getNode_templates().keySet()) {
+            String type = nodeTemplates.getNode_templates().get(name).getType();
+            NodeTemplate nodeTemplate = nodeTemplates.getNode_templates().get(name);
             if (name.equals(key)) {
                 switch (type) {
                     case "VDU":
@@ -249,8 +240,12 @@ public class ParserTosca {
 
                         }
                         return cp;
+
+                    default:
+                        throw new NotSupportedType("The type : " +  type + " is not supported");
+
                 }
-                return null;
+
             }
         }
         return null;

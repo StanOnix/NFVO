@@ -22,6 +22,7 @@ import org.openbaton.exceptions.NetworkServiceIntegrityException;
 import org.openbaton.exceptions.NotFoundException;
 import org.openbaton.nfvo.core.interfaces.NetworkServiceDescriptorManagement;
 import org.openbaton.tosca.catalogue.Definitions;
+import org.openbaton.tosca.catalogue.exceptions.NotSupportedType;
 import org.openbaton.tosca.parser.ParserTosca;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +47,7 @@ public class RestTosca {
 
     @RequestMapping(method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.ACCEPTED)
-    private Yaml postTosca(@RequestBody String tosca) throws NetworkServiceIntegrityException, BadFormatException, NotFoundException {
+    private Yaml postTosca(@RequestBody String tosca) throws NetworkServiceIntegrityException, BadFormatException, NotFoundException, NotSupportedType {
         log.debug(tosca.toString());
 
 

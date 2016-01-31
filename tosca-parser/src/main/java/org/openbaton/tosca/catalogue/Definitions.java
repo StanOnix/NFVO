@@ -30,7 +30,7 @@ public class Definitions {
     private String description;
     private Metadata metadata;
     private Set<String> imports;
-    private Map<String, NodeTemplate> topology_template;
+    private NodeTemplates topology_template;
     private Map<String, Object> dsl_definitions;
     private Map<String, Relationships> relationships_templete;
 
@@ -82,11 +82,11 @@ public class Definitions {
         this.metadata = metadata;
     }
 
-    public Map<String, NodeTemplate> getTopology_template() {
+    public NodeTemplates getTopology_template() {
         return topology_template;
     }
 
-    public void setTopology_template(Map<String, NodeTemplate> topology_template) {
+    public void setTopology_template(NodeTemplates topology_template) {
         this.topology_template = topology_template;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Fraunhofer FOKUS
+ * Copyright (c) 2016 Fraunhofer FOKUS
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,10 +14,21 @@
  *
  */
 
-package org.openbaton.tosca.catalogue.interfaces;
+package org.openbaton.tosca.catalogue;
+
+import java.util.Map;
 
 /**
- * Created by dbo on 30/11/15.
+ * Created by dbo on 13/01/16.
  */
-public interface Properties {
+public class NodeTemplates {
+    private Map<String,NodeTemplate> node_templates;
+
+    public Map<String, NodeTemplate> getNode_templates() {
+        return node_templates;
+    }
+
+    public void setNode_templates(Map<String, NodeTemplate> node_templates) {
+        this.node_templates = node_templates;
+    }
 }

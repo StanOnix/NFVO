@@ -23,7 +23,7 @@ import java.util.ArrayList;
  *
  * Properties for Virtual Deployment Unit
  */
-public class PropertiesVdu {
+public class PropertiesVdu extends Properties{
 
     private ArrayList<String> vm_image;
     private int scale_in_out;
