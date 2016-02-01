@@ -18,15 +18,24 @@ package org.openbaton.tosca.parser;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.apache.commons.compress.utils.IOUtils;
 import org.openbaton.catalogue.mano.common.LifecycleEvent;
 import org.openbaton.catalogue.mano.descriptor.NetworkServiceDescriptor;
 import org.openbaton.catalogue.mano.descriptor.VirtualDeploymentUnit;
 import org.openbaton.catalogue.mano.descriptor.VirtualNetworkFunctionDescriptor;
+import org.openbaton.catalogue.nfvo.Script;
+import org.openbaton.catalogue.nfvo.VNFPackage;
+import org.openbaton.nfvo.repositories.VNFDRepository;
+import org.openbaton.nfvo.repositories.VnfPackageRepository;
 import org.openbaton.openbaton.Image;
 import org.openbaton.openbaton.Metadata;
 import org.openbaton.tosca.catalogue.Definitions;
+import org.openbaton.tosca.catalogue.exceptions.NotFoundException;
 import org.openbaton.utils.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
@@ -39,18 +48,31 @@ import java.util.zip.ZipFile;
 /**
  * Created by dbo on 25/01/16.
  */
+
+@Service
 public class ParserCSAR {
 
-    @Autowired private ParserTosca parserTosca;
+    @Autowired
+    private ParserTosca parserTosca;
+    @Autowired
+    private VnfPackageRepository vnfPackageRepository;
+    @Autowired
+    private VNFDRepository vnfdRepository;
+
     private Definitions definition;
     private String author;
     private String version;
     private String pathUnzipFiles;
-    public Set<String> fileIntoZip = new HashSet<>();
+    private Set<String> vnfPackagesPaths;
 
+
+    private Logger log = LoggerFactory.getLogger(this.getClass());
+
+    public ParserCSAR() {
+    }
 
     public ParserCSAR(String zipPath) throws Exception {
-        unzipCSAR(zipPath);
+        storeScriptsFromCSAR(zipPath);
     }
 
 
@@ -88,9 +110,12 @@ public class ParserCSAR {
         this.version = version;
     }
 
-    public void unzipCSAR(String zipFile) throws Exception {
+    public void storeScriptsFromCSAR(String zipFile) throws Exception {
 
-        System.out.println(zipFile);
+        log.debug("UnZipping the file: " +zipFile);
+        VNFPackage vnfPackage = new VNFPackage();
+        vnfPackage.setScripts(new HashSet<Script>());
+
 
         int BUFFER = 2048;
         File file = new File(zipFile);
@@ -125,11 +150,8 @@ public class ParserCSAR {
 
             if (entry.isDirectory()) {
                 new File(pathEntry).mkdir();
-//                destFile = new File(pathEntry +"/"+ currentEntry, destFile.getName());
-
             }
-            // create the parent directory structure if needed
-//            destinationParent.mkdirs();
+
             if (!entry.isDirectory()) {
                 destFile = new File(pathEntry);
 
@@ -144,6 +166,13 @@ public class ParserCSAR {
                 BufferedOutputStream dest = new BufferedOutputStream(fos,
                         BUFFER);
 
+
+                if(destFile.isFile() && (!destFile.getName().endsWith(".txt") && !destFile.getName().endsWith(".yaml") && !destFile.getName().endsWith(".meta"))){
+                    Script script = new Script();
+                    script.setName(destFile.getName());
+                    script.setPayload(IOUtils.toByteArray(is));
+                    vnfPackage.getScripts().add(script);
+                }
                 // read and write until last byte is encountered
                 while ((currentByte = is.read(data, 0, BUFFER)) != -1) {
                     dest.write(data, 0, currentByte);
@@ -151,18 +180,18 @@ public class ParserCSAR {
 
                 dest.flush();
                 dest.close();
-                is.close();
                 fos.close();
+                is.close();
+
             }
-//            if (currentEntry.endsWith(".zip")) {
-//                // found a zip file, try to open
-//                unzip(destFile.getAbsolutePath());
-//            }
+
         }
 
         if (fileList.contains("TOSCA-Metadata/TOSCA.meta"))
-            System.out.println("################");
-        System.out.println(fileList);
+            log.debug("Found: /TOSCA-Metadata/TOSCA.meta");
+        else
+            throw new NotFoundException("In the csar file is missing the TOSCA-Metadata/TOSCA.meta");
+//        log.debug(String.valueOf(fileList));
 
         FileInputStream fstream = new FileInputStream(newPath + "/TOSCA-Metadata/TOSCA.meta");
         DataInputStream in = new DataInputStream(fstream);
@@ -181,16 +210,19 @@ public class ParserCSAR {
 
 
                 if (!fileList.contains(fileDefinition))
-                    //TODO Throw Exception if file is not inside the csar
                     throw new FileNotFoundException("Error not found the file:" + fileDefinition);
-//                    System.out.println("####### ERROR ");
 
 
-                Definitions d = fromFileToDefinitions(newPath + '/' + fileDefinition);
-                this.definition = d;
-
+                this.definition = fromFileToDefinitions(newPath + '/' + fileDefinition);
+//                ParserTosca parserTosca = new ParserTosca();
                 NetworkServiceDescriptor nsd = parserTosca.getNetworkServiceDescriptor(this.definition);
-                craeteVNFPackage(nsd);
+//                craeteVNFPackages(nsd);
+                vnfPackage.setName(nsd.getName());
+                vnfPackageRepository.save(vnfPackage);
+
+                for(VirtualNetworkFunctionDescriptor vnfd : nsd.getVnfd()){
+                    vnfdRepository.save(vnfd);
+                }
 
             }
             if (strLine.contains(author))
@@ -204,7 +236,15 @@ public class ParserCSAR {
 
     }
 
-    public void craeteVNFPackage(NetworkServiceDescriptor nsd) throws IOException {
+
+    /**
+     * Creates VNFPackages from the nsd ready for be stored into Openbaton
+     * @param nsd
+     * @return
+     * @throws IOException
+     */
+    public Set<String> craeteVNFPackages(NetworkServiceDescriptor nsd) throws IOException {
+        this.vnfPackagesPaths = new HashSet<>();
         for (VirtualNetworkFunctionDescriptor vnfd : nsd.getVnfd()) {
             Metadata metadata = new Metadata();
             metadata.setName(vnfd.getType());
@@ -247,16 +287,17 @@ public class ParserCSAR {
 
                 }
             }
-            Utils.createTar(new File(vnfd.getName()), new File(vnfd.getName() + ".tar"));
+
+            File directory = new File(vnfd.getName());
+            File tar = new File(vnfd.getName() + ".tar");
+            Utils.createTar(directory, tar);
+//            log.debug(String.valueOf(this.vnfPackagesPaths));
+            this.vnfPackagesPaths.add(tar.getAbsolutePath());
 
         }
+        return this.vnfPackagesPaths;
 
     }
-
-
-
-
-
 
 
     public Definitions fromFileToDefinitions(String fileName) throws FileNotFoundException {
