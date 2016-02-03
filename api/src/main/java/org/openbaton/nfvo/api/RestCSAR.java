@@ -17,15 +17,13 @@
 package org.openbaton.nfvo.api;
 
 
-import org.openbaton.tosca.parser.ParserCSAR;
+import org.openbaton.tosca.parser.interfaces.ParserCSAR;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.File;
 import java.io.IOException;
 
 /**
@@ -37,8 +35,6 @@ public class RestCSAR {
 
     @Autowired
     private ParserCSAR parserCSAR;
-    @Autowired
-    private HttpServletRequest request;
 
     private Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -49,11 +45,7 @@ public class RestCSAR {
 
 
         if (!csar.isEmpty()) {
-            String filePath = request.getServletContext().getRealPath("/tmp/");
-            File csarPath = new File(filePath);
-            csar.transferTo(csarPath);
-            log.debug(String.valueOf(csarPath.exists()));
-            parserCSAR.storeScriptsFromCSAR(csarPath.getAbsolutePath());
+            parserCSAR.storeScriptsFromCSAR(csar.getBytes());
 
         } else throw new IOException("File is empty!");
         return "Correctly stored the CSAR file";

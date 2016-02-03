@@ -15,7 +15,6 @@ dsl_definitions:
       num_cpus: 1
       mem_size: 4096 MB
 
-
 topology_template:
   node_templates:
     iperf-server: #VNF1
@@ -39,12 +38,12 @@ topology_template:
             type: openbaton.relationships.HostedOn
       interfaces:
         Standard: # lifecycle
-          create: scripts/install.sh
+          create: Scripts/install.sh
 #          configure:
 #            implementation: scripts/install-srv.sh
 #            inputs:
 #              server_ip: { get_attribute: [iperf-server, private_address] }
-          start: scripts/install-srv.sh
+          start: Scripts/install-srv.sh
     iperf-client:
       type: openbaton.type.VNF.GENERIC
       properties:
@@ -56,7 +55,7 @@ topology_template:
           configurationParameters:
             - key: value
             - key2: value2
-        scriptsLink: sadasdasdasd
+        scriptsLink: https://gitlab.fokus.fraunhofer.de/openbaton/scripts-test-public.git
         deployment_flavour:
           - flavour_key: m1.small
       requirements:
@@ -67,9 +66,9 @@ topology_template:
       interfaces:
         openbaton.interfaces.lifecycle: # lifecycle
           INSTANCIATE:
-            - scripts/install.sh
+            - Scripts/install.sh
           CONFIGURE:
-            - server_configure.sh
+            - Scripts/server_configure.sh
   #        CONFIGURE:
   #          implementation: server_configure.sh
   #          inputs:

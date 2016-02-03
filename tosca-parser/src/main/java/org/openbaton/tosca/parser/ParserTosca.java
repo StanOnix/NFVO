@@ -30,7 +30,7 @@ import java.util.*;
  * Created by dbo on 26/11/15.
  */
 @Service
-public class ParserTosca {
+public class ParserTosca implements org.openbaton.tosca.parser.interfaces.ParserTosca {
 
     public Definitions definitions;
     public NetworkServiceDescriptor networkServiceDescriptor;
