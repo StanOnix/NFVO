@@ -28,22 +28,22 @@ topology_template:
           configurationParameters:
             - key: value
             - key2: value2
-        scriptsLink: https://gitlab.fokus.fraunhofer.de/openbaton/scripts-test-public.git
+        vnfPackageLocation: https://gitlab.fokus.fraunhofer.de/openbaton/scripts-test-public.git
         deployment_flavour:
           - flavour_key: m1.small
       requirements:
         - virtualLink: private
         - host:
-            node: VDU1
+            node: VDU2
             type: openbaton.relationships.HostedOn
       interfaces:
         Standard: # lifecycle
-          create: Scripts/install.sh
+          create: install.sh
 #          configure:
-#            implementation: scripts/install-srv.sh
+#            implementation: install-srv.sh
 #            inputs:
 #              server_ip: { get_attribute: [iperf-server, private_address] }
-          start: Scripts/install-srv.sh
+          start: install-srv.sh
     iperf-client:
       type: openbaton.type.VNF.GENERIC
       properties:
@@ -55,20 +55,22 @@ topology_template:
           configurationParameters:
             - key: value
             - key2: value2
-        scriptsLink: https://gitlab.fokus.fraunhofer.de/openbaton/scripts-test-public.git
+        vnfPackageLocation: https://gitlab.fokus.fraunhofer.de/openbaton/scripts-test-public.git
         deployment_flavour:
           - flavour_key: m1.small
       requirements:
         - virtualLink: private
         - host:
-            node: VDU2
+            node: VDU1
             type: openbaton.relationships.HostedOn
       interfaces:
         openbaton.interfaces.lifecycle: # lifecycle
           INSTANCIATE:
-            - Scripts/install.sh
+            - install.sh
           CONFIGURE:
-            - Scripts/server_configure.sh
+            - server_configure_only.sh
+          START:
+            - iperf_client_start.sh
   #        CONFIGURE:
   #          implementation: server_configure.sh
   #          inputs:
@@ -126,8 +128,8 @@ topology_template:
 relationships_templete:
   connection_server_client:
     type: tosca.nodes.relationships.ConnectsTo
-    source: iperf-client
-    target: iperf-server
+    source: iperf-server
+    target: iperf-client
     parameters:
         - private
 

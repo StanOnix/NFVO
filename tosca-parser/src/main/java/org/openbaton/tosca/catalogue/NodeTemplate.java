@@ -22,6 +22,8 @@ import org.openbaton.catalogue.mano.descriptor.NetworkServiceDescriptor;
 import org.openbaton.catalogue.mano.descriptor.VNFDependency;
 import org.openbaton.catalogue.mano.descriptor.VirtualNetworkFunctionDescriptor;
 import org.openbaton.tosca.catalogue.interfaces.INodeTemplete;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -39,6 +41,7 @@ public class NodeTemplate implements INodeTemplete {
     private String virtualLink;
     private NetworkServiceDescriptor networkServiceDescriptor;
     private String target;
+    private Logger log = LoggerFactory.getLogger(this.getClass());
 
     public NetworkServiceDescriptor getNetworkServiceDescriptor() {
         return networkServiceDescriptor;
@@ -79,8 +82,8 @@ public class NodeTemplate implements INodeTemplete {
 
             ArrayList<HashMap<String, String>> deployment_flavour = (ArrayList<HashMap<String, String>>) propertiesMap.get("deployment_flavour");
             pr.setDeployment_flavour(deployment_flavour);
-//                pr.setVirtual_link((ArrayList<HashMap<String, String>>) propertiesMap.get("virtual_link"));
-//                System.out.print(pr);
+            if (propertiesMap.get("vnfPackageLocation") != null)
+                pr.setVnfPackageLocation(propertiesMap.get("vnfPackageLocation").toString());
 
             return pr;
 

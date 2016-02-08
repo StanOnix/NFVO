@@ -22,6 +22,8 @@ import org.openbaton.catalogue.nfvo.Configuration;
 import org.openbaton.catalogue.nfvo.ConfigurationParameter;
 import org.openbaton.tosca.catalogue.*;
 import org.openbaton.tosca.catalogue.exceptions.NotSupportedType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -37,6 +39,7 @@ public class ParserTosca implements org.openbaton.tosca.parser.interfaces.Parser
     public Set<VirtualNetworkFunctionDescriptor> virtualNetworkFunctionDescriptors;
     public Set<VirtualDeploymentUnit> virtualDeploymentUnits;
 
+    private Logger log = LoggerFactory.getLogger(this.getClass());
 //    public ParserTosca(Definitions definitions) {
 //        this.definitions = definitions;
 //    }
@@ -89,12 +92,12 @@ public class ParserTosca implements org.openbaton.tosca.parser.interfaces.Parser
                 vnfd.setEndpoint(endPoint.toLowerCase());
                 nodeTemplate.setNSDandSourceName(this.networkServiceDescriptor, nodeName);
                 vnfd.setLifecycle_event((Set<LifecycleEvent>) nodeTemplate.getInterfaces());
-//                System.out.println(this.networkServiceDescriptor);
                 PropertiesVnf properties = (PropertiesVnf) nodeTemplate.getProperties();
                 vnfd.setVersion(properties.getVersion());
                 vnfd.setVendor(properties.getVendor());
                 vnfd.setId(properties.getId());
-                vnfd.setVnfPackageLocation(properties.getScriptsLink());
+                vnfd.setVnfPackageLocation(properties.getVnfPackageLocation());
+
                 Configuration configuration = new Configuration();
                 configuration.setName(properties.getConfigurations().getName());
                 Set<ConfigurationParameter> configurationParameters = new HashSet<>();

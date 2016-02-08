@@ -18,6 +18,7 @@ package org.openbaton.tosca.parser;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.apache.commons.validator.UrlValidator;
 import org.openbaton.catalogue.mano.common.LifecycleEvent;
 import org.openbaton.catalogue.mano.descriptor.NetworkServiceDescriptor;
 import org.openbaton.catalogue.mano.descriptor.VirtualDeploymentUnit;
@@ -113,6 +114,7 @@ public class ParserCSAR implements org.openbaton.tosca.parser.interfaces.ParserC
         vnfPackage.setScripts(new HashSet<Script>());
         ZipInputStream zipStream = new ZipInputStream(new ByteArrayInputStream(zipFile));
         File dir = new File(this.pathUnzipFiles);
+        UrlValidator urlValidator = new UrlValidator();
         if (dir.exists())
             dir.delete();
         dir.mkdir();
@@ -121,6 +123,7 @@ public class ParserCSAR implements org.openbaton.tosca.parser.interfaces.ParserC
         try {
             while ((entry = zipStream.getNextEntry()) != null) {
                 String currentEntry = entry.getName();
+
                 fileList.add(currentEntry.trim());
                 File destFile = new File(this.pathUnzipFiles + '/' + currentEntry, currentEntry);
                 destFile = new File(this.pathUnzipFiles, destFile.getName());
@@ -136,24 +139,31 @@ public class ParserCSAR implements org.openbaton.tosca.parser.interfaces.ParserC
 
                 if (!entry.isDirectory()) {
                     destFile = new File(pathEntry);
-                    byte[] content = new byte[(int) entry.getSize()];
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     FileOutputStream fos = new FileOutputStream(destFile.getAbsoluteFile());
 
-                    for (int c = zipStream.read(); c != -1; c = zipStream.read()) {
-                        fos.write(c);
+                    int count;
+                    byte[] buffer = new byte[1024];
+                    while ((count = zipStream.read(buffer)) != -1) {
+                        baos.write(buffer, 0, count);
+                        fos.write(buffer,0,count);
                     }
-                    zipStream.closeEntry();
+
                     String filename = entry.getName();
                     if (destFile.isFile() && (!destFile.getName().endsWith(".txt") && !destFile.getName().endsWith(".meta") && !destFile.getName().endsWith(".yaml"))) {
                         Script script = new Script();
                         fileList.add(filename);
-                        script.setName(filename);
-                        script.setPayload(content);
+                        String []splittedName = filename.split("/");
+                        script.setName(splittedName[splittedName.length - 1]);
+//                        log.warn(filename.split("/")[1]);
+                        script.setPayload(baos.toByteArray());
                         vnfPackage.getScripts().add(script);
                     }
 
-
                     fos.close();
+                    baos.close();
+                    zipStream.closeEntry();
+
                 }
 
 
@@ -163,8 +173,7 @@ public class ParserCSAR implements org.openbaton.tosca.parser.interfaces.ParserC
         }
 
 
-
-        log.debug("Files into CSAR: "+String.valueOf(fileList));
+        log.info("Files into CSAR: " + String.valueOf(fileList));
         if (fileList.contains("TOSCA-Metadata/TOSCA.meta"))
             log.debug("Found: /TOSCA-Metadata/TOSCA.meta");
         else
@@ -197,9 +206,27 @@ public class ParserCSAR implements org.openbaton.tosca.parser.interfaces.ParserC
                 vnfPackage.setName(nsd.getName());
                 vnfPackageRepository.save(vnfPackage);
 
+
+
+
+
+
+
                 for (VirtualNetworkFunctionDescriptor vnfd : nsd.getVnfd()) {
+                    vnfd.setVnfPackageLocation(vnfPackage.getId());
+
+                    if (vnfd.getVnfPackageLocation() != null) {
+                        if (urlValidator.isValid(vnfd.getVnfPackageLocation())) {// this is a script link
+                            vnfPackage.setScriptsLink(vnfd.getVnfPackageLocation());
+                            vnfPackage.setName(vnfd.getName());
+                            vnfPackage = vnfPackageRepository.save(vnfPackage);
+                            vnfd.setVnfPackageLocation(vnfPackage.getId());
+                        }
+                    }
+
                     vnfdRepository.save(vnfd);
                 }
+
 
             }
             if (strLine.contains(author))

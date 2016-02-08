@@ -28,7 +28,7 @@ public class PropertiesVnf extends Properties {
 
     private Configuration configurations;
     private ArrayList<HashMap<String, String>> deployment_flavour;
-    private String scriptsLink;
+    private String vnfPackageLocation;
 
     public Configuration getConfigurations() {
         return configurations;
@@ -46,12 +46,12 @@ public class PropertiesVnf extends Properties {
         this.deployment_flavour = deployment_flavour;
     }
 
-    public String getScriptsLink() {
-        return scriptsLink;
+    public String getVnfPackageLocation() {
+        return vnfPackageLocation;
     }
 
-    public void setScriptsLink(String scriptsLink) {
-        this.scriptsLink = scriptsLink;
+    public void setVnfPackageLocation(String vnfPackageLocation) {
+        this.vnfPackageLocation = vnfPackageLocation;
     }
 
     @Override
@@ -59,7 +59,7 @@ public class PropertiesVnf extends Properties {
         return "PropertiesVnf{" +
                 "configurations=" + configurations +
                 ", deployment_flavour=" + deployment_flavour +
-                ", scriptsLink='" + scriptsLink + '\'' +
+                ", vnfPackageLocation='" + vnfPackageLocation + '\'' +
                 '}';
     }
 }

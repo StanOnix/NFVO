@@ -27,8 +27,6 @@ dependencies {
 
     compile 'com.google.code.gson:gson:2.5'
 
-    compile 'com.google.code.gson:gson:2.4'
-
     compile("org.springframework.boot:spring-boot-starter-websocket:" + springBootVersion)
 
     testCompile("com.jayway.jsonpath:json-path-assert:2.0.0")
