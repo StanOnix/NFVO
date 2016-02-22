@@ -122,46 +122,55 @@ public class DependencyManagement implements org.openbaton.nfvo.core.interfaces.
 
             if (!vnfRecordDependency.getTarget().equals(virtualNetworkFunctionRecord.getName())) {
                 boolean set = false;
-                VNFCDependencyParameters vnfcDependencyParameters = null;
+                VNFCDependencyParameters vnfcDependencyParameters = vnfRecordDependency.getVnfcParameters().get(virtualNetworkFunctionRecord.getType());;
+
                 for (VirtualDeploymentUnit virtualDeploymentUnit : virtualNetworkFunctionRecord.getVdu())
                     for (VNFCInstance vnfcInstance : virtualDeploymentUnit.getVnfc_instance()) {
 
                         log.debug("VNFComponent id: " + vnfcInstance.getVnfComponent().getId());
                         log.debug("VNFRecordDependency is " + vnfRecordDependency);
-                        vnfcDependencyParameters = vnfRecordDependency.getVnfcParameters().get(virtualNetworkFunctionRecord.getType());
                         log.debug("VNFCDependencyParameters is " + vnfcDependencyParameters);
 
-                        set = false;
                         if (vnfcDependencyParameters == null) {
-                            set = true;
                             vnfcDependencyParameters = new VNFCDependencyParameters();
                             vnfcDependencyParameters.setParameters(new HashMap<String, DependencyParameters>());
                         }
+                        Set<String> keys = dp.getParameters().keySet();
+
+                        log.debug("Parameters requested are: " );
+                        for (String s : keys)
+                            log.debug("\t" + s);
+
                         if (vnfcDependencyParameters.getParameters().get(vnfcInstance.getId()) == null) {
                             DependencyParameters dependencyParameters = new DependencyParameters();
                             dependencyParameters.setParameters(new HashMap<String, String>());
                             vnfcDependencyParameters.getParameters().put(vnfcInstance.getId(), dependencyParameters);
                         }
                         for (Ip ip : vnfcInstance.getIps()) {
-                            log.debug("Adding " + ip.getNetName() + "=" + ip.getIp() + ". VNFCInstance ID: " + vnfcInstance.getId());
-                            vnfcDependencyParameters.getParameters().get(vnfcInstance.getId()).getParameters().put(ip.getNetName(), ip.getIp());
+                            if (keys.contains(ip.getNetName())) {
+                                log.debug("Adding " + ip.getNetName() + "=" + ip.getIp() + ". VNFCInstance ID: " + vnfcInstance.getId());
+                                vnfcDependencyParameters.getParameters().get(vnfcInstance.getId()).getParameters().put(ip.getNetName(), ip.getIp());
+                            }
                         }
 
                         for (Ip ip : vnfcInstance.getFloatingIps()) {
-                            log.debug("Adding " + ip.getNetName() + "=" + ip.getIp() + ". VNFCInstance ID: " + vnfcInstance.getId());
-                            vnfcDependencyParameters.getParameters().get(vnfcInstance.getId()).getParameters().put(ip.getNetName() + "_floatingIp", ip.getIp());
+                            if (keys.contains(ip.getNetName() + "_floatingIp")) {
+                                log.debug("Adding " + ip.getNetName() + "=" + ip.getIp() + ". VNFCInstance ID: " + vnfcInstance.getId());
+                                vnfcDependencyParameters.getParameters().get(vnfcInstance.getId()).getParameters().put(ip.getNetName() + "_floatingIp", ip.getIp());
+                            }
                         }
-
-                        vnfcDependencyParameters.getParameters().get(vnfcInstance.getId()).getParameters().put("hostname", vnfcInstance.getHostname());
+                        if (keys.contains("hostname")) {
+                            vnfcDependencyParameters.getParameters().get(vnfcInstance.getId()).getParameters().put("hostname", vnfcInstance.getHostname());
+                        }
                     }
-                if (set) {
+                if (vnfcDependencyParameters != null) {
+                    log.debug("Adding vnfcDependencyParameters: " + vnfcDependencyParameters);
                     vnfRecordDependency.getVnfcParameters().put(virtualNetworkFunctionRecord.getType(), vnfcDependencyParameters);
                 }
             }
 
-
             vnfrDependencyRepository.save(vnfRecordDependency);
-            log.info("Filled parameter for depedendency target = " + vnfRecordDependency.getTarget() + " with parameters: " + vnfRecordDependency.getParameters());
+            log.info("Filled parameter for depedendency target = " + vnfRecordDependency.getTarget() + " with parameters: " + vnfRecordDependency.getParameters() + " and with vnfcParameters: " + vnfRecordDependency.getVnfcParameters());
         }
 
     }
