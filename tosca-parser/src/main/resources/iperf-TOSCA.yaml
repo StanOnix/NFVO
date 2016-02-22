@@ -1,19 +1,10 @@
-tosca_definitions_version: tosca_simple_profile_for_type_1_0_0
+tosca_definitions_version: tosca_iperf_1_0_0
 tosca_default_namespace:    # Optional. default namespace (schema, types version)
 description: NSD for deploing an iperf scenario
 metadata:
   ID:                 # ID of this Network Service Descriptor
   vendor: Fokus       # Provider or vendor of the Network Service
   version: 0.1 Alpha  # Version of the Network Service Descriptor imports:
-imports:
-  - tosca_base_type_definition.yaml
-  # list of import statements for importing other definitions files
-
-dsl_definitions:
-  host_capabilities: &host_capabilities
-      disk_size: 10 GB
-      num_cpus: 1
-      mem_size: 4096 MB
 
 topology_template:
   node_templates:
@@ -39,10 +30,6 @@ topology_template:
       interfaces:
         Standard: # lifecycle
           create: install.sh
-#          configure:
-#            implementation: install-srv.sh
-#            inputs:
-#              server_ip: { get_attribute: [iperf-server, private_address] }
           start: install-srv.sh
     iperf-client:
       type: openbaton.type.VNF.GENERIC
@@ -71,10 +58,6 @@ topology_template:
             - server_configure_only.sh
           START:
             - iperf_client_start.sh
-  #        CONFIGURE:
-  #          implementation: server_configure.sh
-  #          inputs:
-  #            iperf_server_ip: { get_attribute: [iperf-server, private] }
     VDU1:
       type: openbaton.type.VDU
       properties:
@@ -86,7 +69,6 @@ topology_template:
          - virtual_link: [CP1]
       capabilities:
         host:
-          properties: *host_capabilities
           valid_source_types: openbaton.type.VDU
     VDU2:
       type: openbaton.type.VDU
@@ -99,7 +81,6 @@ topology_template:
         - virtual_link: [CP2]
       capabilities:
         host:
-          properties: *host_capabilities
           valid_source_types: openbaton.type.VDU
 
     private:

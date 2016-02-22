@@ -34,6 +34,7 @@ public class Relationships {
     public void setSource(String source) {
         this.source = source;
     }
+
     public String getTarget() {
         return target;
     }
@@ -62,6 +63,7 @@ public class Relationships {
     public String toString() {
         return "Relationships{" +
                 "target='" + target + '\'' +
+                ", source='" + source + '\'' +
                 ", type='" + type + '\'' +
                 ", parameters=" + parameters +
                 '}';
