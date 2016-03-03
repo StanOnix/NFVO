@@ -52,6 +52,7 @@ public class RestTosca {
     @RequestMapping(method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.ACCEPTED)
     private NetworkServiceDescriptor postTosca(@RequestBody String tosca) throws NetworkServiceIntegrityException, BadFormatException, NotFoundException, NotSupportedType, CyclicDependenciesException {
+
         log.debug(tosca.toString());
 
 

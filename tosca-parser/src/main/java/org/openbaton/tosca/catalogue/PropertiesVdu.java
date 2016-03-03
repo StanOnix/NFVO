@@ -21,7 +21,7 @@ import java.util.ArrayList;
 /**
  * Created by dbo on 17/11/15.
  *
- * Properties for Virtual Deployment Unit
+ * Properties for the Virtual Deployment Unit
  */
 public class PropertiesVdu extends Properties{
 

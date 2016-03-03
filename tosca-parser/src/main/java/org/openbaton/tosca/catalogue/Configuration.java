@@ -23,6 +23,7 @@ import java.util.HashMap;
  * Created by dbo on 12/11/15.
  */
 public class Configuration {
+
     private String name;
     private ArrayList<HashMap<String, String>> configurationParameters;
 

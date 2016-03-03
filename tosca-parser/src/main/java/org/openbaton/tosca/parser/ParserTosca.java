@@ -138,12 +138,7 @@ public class ParserTosca implements org.openbaton.tosca.parser.interfaces.Parser
 
                 vnfd.setDeployment_flavour(deploymentFlavours);
                 networkServiceDescriptor.getVnfd().add(vnfd);
-
-                if (networkServiceDescriptor.getVnf_dependency() == null)
-                    networkServiceDescriptor.setVnf_dependency(new HashSet<VNFDependency>());
-
-                networkServiceDescriptor.getVnf_dependency().add(getVNFDependency());
-
+                networkServiceDescriptor.setVnf_dependency(getVNFDependencies());
 
             }
 
@@ -171,18 +166,25 @@ public class ParserTosca implements org.openbaton.tosca.parser.interfaces.Parser
         return null;
     }
 
-    public VNFDependency getVNFDependency() {
-        VNFDependency vnfDependency = new VNFDependency();
-        Relationships relationships = definitions.getRelationships_templete().get(("connection_server_client"));
-        VirtualNetworkFunctionDescriptor tempVnfdSource = new VirtualNetworkFunctionDescriptor();
-        VirtualNetworkFunctionDescriptor tempVnfdTarget = new VirtualNetworkFunctionDescriptor();
-        tempVnfdSource.setName(relationships.getSource());
-        vnfDependency.setSource(tempVnfdSource);
-        tempVnfdTarget.setName(relationships.getTarget());
-        vnfDependency.setTarget(tempVnfdTarget);
-        vnfDependency.setParameters(relationships.getParameters());
-        return vnfDependency;
+    public Set<VNFDependency> getVNFDependencies() {
+        Set<VNFDependency> vnfDependencies = new HashSet<>();
 
+        for (String relationshipNode : definitions.getRelationships_templete().keySet()) {
+            if (definitions.getRelationships_templete().get(relationshipNode) != null) {
+                VNFDependency vnfDependency = new VNFDependency();
+                Relationships relationships = definitions.getRelationships_templete().get(relationshipNode);
+                VirtualNetworkFunctionDescriptor tempVnfdSource = new VirtualNetworkFunctionDescriptor();
+                VirtualNetworkFunctionDescriptor tempVnfdTarget = new VirtualNetworkFunctionDescriptor();
+                tempVnfdSource.setName(relationships.getSource());
+                vnfDependency.setSource(tempVnfdSource);
+                tempVnfdTarget.setName(relationships.getTarget());
+                vnfDependency.setTarget(tempVnfdTarget);
+                vnfDependency.setParameters(relationships.getParameters());
+                vnfDependencies.add(vnfDependency);
+
+            }
+        }
+        return vnfDependencies;
     }
 
     public Object getObject(String name) throws NotSupportedType {
@@ -200,7 +202,6 @@ public class ParserTosca implements org.openbaton.tosca.parser.interfaces.Parser
                         PropertiesVdu propertiesV = (PropertiesVdu) nodeTemplate.getProperties();
                         nodeTemplate.getCapabilities();
                         vdu.setVm_image(new HashSet<String>(propertiesV.getVm_image()));
-//                        System.out.println(nodeTemplate.getProperties());
                         vdu.setScale_in_out(propertiesV.getScale_in_out());
                         vdu.setVimInstanceName(propertiesV.getVimInstance());
                         List<Map<String, Object>> requirements = (List<Map<String, Object>>) nodeTemplate.getRequirements();
@@ -208,10 +209,7 @@ public class ParserTosca implements org.openbaton.tosca.parser.interfaces.Parser
                             for (String keyReq : req.keySet()) {
                                 if (keyReq.equals("virtual_link")) {
                                     Set<VNFComponent> vnfComponents = new HashSet<>();
-
                                     List<String> virtual_links = (ArrayList<String>) req.get(keyReq);
-                                    VNFDConnectionPoint cp = new VNFDConnectionPoint();
-//                                    System.out.println(virtual_links);
                                     VNFComponent vnfc = new VNFComponent();
                                     Set<VNFDConnectionPoint> cps = new HashSet<>();
                                     vnfc.setConnection_point(cps);
@@ -221,26 +219,17 @@ public class ParserTosca implements org.openbaton.tosca.parser.interfaces.Parser
                                     vnfc.setConnection_point(cps);
                                     vnfComponents.add(vnfc);
                                     vdu.setVnfc(vnfComponents);
-
-
                                 }
-
-
                             }
                         }
-
-//                    System.out.print(nodeTemplate.getProperties().getClass());
-
-
                         return vdu;
+
                     case "tosca.nodes.nfv.CP":
                         VNFDConnectionPoint cp = new VNFDConnectionPoint();
                         cp.setVirtual_link_reference(nodeTemplate.getVirtualLink());
                         if (nodeTemplate.getProperties() != null) {
                             PropertiesCP prop = (PropertiesCP) nodeTemplate.getProperties();
                             cp.setFloatingIp(prop.getFloatingIp());
-
-
                         }
                         return cp;
 

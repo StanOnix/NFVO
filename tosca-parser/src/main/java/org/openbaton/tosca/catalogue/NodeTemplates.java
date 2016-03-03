@@ -22,6 +22,7 @@ import java.util.Map;
  * Created by dbo on 13/01/16.
  */
 public class NodeTemplates {
+
     private Map<String,NodeTemplate> node_templates;
 
     public Map<String, NodeTemplate> getNode_templates() {

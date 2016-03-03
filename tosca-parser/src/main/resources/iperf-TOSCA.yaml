@@ -4,7 +4,7 @@ description: NSD for deploing an iperf scenario
 metadata:
   ID:                 # ID of this Network Service Descriptor
   vendor: Fokus       # Provider or vendor of the Network Service
-  version: 0.1 Alpha  # Version of the Network Service Descriptor imports:
+  version: 0.1 Alpha  # Version of the Network Service Descriptor
 
 topology_template:
   node_templates:

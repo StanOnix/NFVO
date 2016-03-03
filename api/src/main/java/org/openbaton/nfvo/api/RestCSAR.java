@@ -43,11 +43,11 @@ public class RestCSAR {
     @ResponseBody
     public String onboard(@RequestParam("file") MultipartFile csar) throws Exception {
 
-
         if (!csar.isEmpty()) {
             parserCSAR.storeScriptsFromCSAR(csar.getBytes());
 
         } else throw new IOException("File is empty!");
+
         return "Correctly stored the CSAR file";
     }
 }

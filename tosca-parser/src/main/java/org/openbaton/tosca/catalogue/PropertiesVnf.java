@@ -22,7 +22,7 @@ import java.util.HashMap;
 /**
  * Created by dbo on 16/11/15.
  *
- * Properties for Virtual Network Function
+ * Properties for the Virtual Network Function
  */
 public class PropertiesVnf extends Properties {
 

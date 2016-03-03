@@ -19,7 +19,7 @@ package org.openbaton.tosca.catalogue;
 /**
  * Created by dbo on 04/12/15.
  *
- * Properties for Connection Point
+ * Properties for the Connection Point
  */
 public class PropertiesCP extends Properties {
 

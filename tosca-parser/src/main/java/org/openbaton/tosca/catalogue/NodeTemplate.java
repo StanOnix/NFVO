@@ -93,7 +93,7 @@ public class NodeTemplate implements INodeTemplete {
             prVdu.setScale_in_out((Integer) propertiesMap.get("scale_in_out"));
             prVdu.setVm_image((ArrayList<String>) propertiesMap.get("vm_image"));
             prVdu.setVimInstance((String) propertiesMap.get("vimInstanceName"));
-//                System.out.println(prVdu);
+
             return prVdu;
 
         } else if (type.startsWith("tosca.nodes.nfv.CP")) {
@@ -139,13 +139,11 @@ public class NodeTemplate implements INodeTemplete {
 
         Map<String, Object> life = (Map<String, Object>) interfaces;
         for (String lifeCycleTag : life.keySet()) {
-//            System.out.println(lifeCycleTag);
+
             if (lifeCycleTag.toLowerCase().equals("standard")) {
-//                System.out.println(lifeCycleTag.toLowerCase());
                 return lifecyclesStandard(life, lifeCycleTag);
             } else if (lifeCycleTag.toLowerCase().equals("openbaton.interfaces.lifecycle") ||
                     lifeCycleTag.toLowerCase().equals("lifecycle")) {
-//                System.out.println(lifeCycleTag.toLowerCase());
 
                 return lifeCycleEventsOpenbaton(life, lifeCycleTag);
 
@@ -161,17 +159,12 @@ public class NodeTemplate implements INodeTemplete {
     private Set<LifecycleEvent> lifecyclesStandard(Map<String, Object> life, String lifeCycleTag) {
 
         Set<LifecycleEvent> lifecycleEvents = new HashSet<>();
-//        System.out.println(((Map<String, Object>) life.get(lifeCycleTag)).keySet());
 
-//        InterfaceStandard interfaceStandard = (InterfaceStandard) life.get(lifeCycleTag);
         for (String lifecycleName : ((Map<String, Object>) life.get(lifeCycleTag)).keySet()) {
             LifecycleEvent lifecycleEvent = new LifecycleEvent();
-//            InterfaceStandard interfaceStandard  = new InterfaceStandard();
-            if (lifecycleName.toLowerCase().equals("create")) {
-//                System.out.println(((Map<String, Object>) life.get(lifeCycleTag)).get(lifecycleName));
 
+            if (lifecycleName.toLowerCase().equals("create")) {
                 lifecycleEvent.setEvent(Event.INSTANTIATE);
-//                interfaceStandard.setStart((String) ((Map<String, Object>) life.get(lifeCycleTag)).get(lifecycleName));
             } else if (lifecycleName.toLowerCase().equals("configure"))
                 lifecycleEvent.setEvent(Event.CONFIGURE);
             else if (lifecycleName.toLowerCase().equals("start"))
@@ -184,25 +177,17 @@ public class NodeTemplate implements INodeTemplete {
                 lifecycleEvent.setLifecycle_events(new ArrayList<String>());
             if (lifecycleEvent.getEvent().equals(Event.CONFIGURE)) {
                 Map<String, Object> configureEvent = (Map<String, Object>) ((Map<String, Object>) life.get(lifeCycleTag)).get(lifecycleName);
-//                System.out.println(configureEvent);
                 lifecycleEvent.getLifecycle_events().add((String) configureEvent.get("implementation"));
                 Map<String, Object> inputsObj = (Map<String, Object>) configureEvent.get("inputs");
                 for (String inputValue : inputsObj.keySet()) {
-//                    System.out.println(inputsObj.get(inputValue));
-//                    System.out.println(inputValue);
                     for (String configValues : inputsObj.keySet()) {
                         Map<String, Set<String>> valuesArray = (Map<String, Set<String>>) inputsObj.get(configValues);
-
-//                        System.out.println(inputsObj.get(configValues));
-//                        System.out.println(valuesArray);
                         for (String getValues : valuesArray.keySet()) {
-//                            System.out.println(valuesArray.get(getValues));
                             List<String> valueParamWithSource = (List<String>) valuesArray.get(getValues);
                             Set<String> valueParams = new LinkedHashSet<>(valueParamWithSource.subList(1, valueParamWithSource.size()));
                             VNFDependency dependency = new VNFDependency();
                             VirtualNetworkFunctionDescriptor source = new VirtualNetworkFunctionDescriptor();
                             VirtualNetworkFunctionDescriptor target = new VirtualNetworkFunctionDescriptor();
-
 
                             //In TOSCA Simple definitions is possible to retrieve PROPERTY from the same VNF
                             if (valueParamWithSource.get(0).equals("SELF"))
@@ -238,8 +223,6 @@ public class NodeTemplate implements INodeTemplete {
     public Object getCapabilities() {
         Map<String, Object> capabilitiesMap = (Map<String, Object>) this.capabilities;
         Map<String, Object> hostMap = (Map<String, Object>) capabilitiesMap.get("host");
-
-//        System.out.println(hostMap.get("properties"));
 
         return capabilities;
     }

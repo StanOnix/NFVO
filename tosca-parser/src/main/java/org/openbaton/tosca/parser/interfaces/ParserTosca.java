@@ -25,4 +25,5 @@ import org.openbaton.tosca.catalogue.exceptions.NotSupportedType;
  */
 public interface ParserTosca {
     NetworkServiceDescriptor getNetworkServiceDescriptor(Definitions definitions) throws NotSupportedType;
+    void setDefinitions(Definitions definitions);
 }
