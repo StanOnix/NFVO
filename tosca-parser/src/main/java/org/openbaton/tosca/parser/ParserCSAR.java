@@ -146,16 +146,20 @@ public class ParserCSAR implements org.openbaton.tosca.parser.interfaces.ParserC
                     byte[] buffer = new byte[1024];
                     while ((count = zipStream.read(buffer)) != -1) {
                         baos.write(buffer, 0, count);
-                        fos.write(buffer,0,count);
+                        fos.write(buffer, 0, count);
                     }
 
                     String filename = entry.getName();
                     if (destFile.isFile() && (!destFile.getName().endsWith(".txt") && !destFile.getName().endsWith(".meta") && !destFile.getName().endsWith(".yaml"))) {
                         Script script = new Script();
                         fileList.add(filename);
-                        String []splittedName = filename.split("/");
-                        script.setName(splittedName[splittedName.length - 1]);
-//                        log.warn(filename.split("/")[1]);
+                        String[] splittedName = filename.split("/");
+                        if (splittedName.length > 2) {
+                            String scriptName = splittedName[splittedName.length - 2] + "_" + splittedName[splittedName.length - 1];
+                            script.setName(scriptName);
+
+                        } else
+                            script.setName(splittedName[splittedName.length - 1]);
                         script.setPayload(baos.toByteArray());
                         vnfPackage.getScripts().add(script);
                     }
@@ -205,11 +209,6 @@ public class ParserCSAR implements org.openbaton.tosca.parser.interfaces.ParserC
 //                craeteVNFPackages(nsd);
                 vnfPackage.setName(nsd.getName());
                 vnfPackageRepository.save(vnfPackage);
-
-
-
-
-
 
 
                 for (VirtualNetworkFunctionDescriptor vnfd : nsd.getVnfd()) {

@@ -105,7 +105,7 @@ public class ParserTosca implements org.openbaton.tosca.parser.interfaces.Parser
                     for (String key : config.keySet()) {
                         ConfigurationParameter cfgP = new ConfigurationParameter();
                         cfgP.setConfKey(key);
-                        cfgP.setValue(config.get(key));
+                        cfgP.setValue(String.valueOf(config.get(key)));
                         configurationParameters.add(cfgP);
                     }
 
