@@ -32,15 +32,15 @@ public class Definitions {
     private Set<String> imports;
     private NodeTemplates topology_template;
     private Map<String, Object> dsl_definitions;
-    private Map<String, Relationships> relationships_templete;
+    private Map<String, Relationships> relationships_template;
 
 
-    public Map<String, Relationships> getRelationships_templete() {
-        return relationships_templete;
+    public Map<String, Relationships> getrelationships_template() {
+        return relationships_template;
     }
 
-    public void setRelationships_templete(Map<String, Relationships> relationships_templete) {
-        this.relationships_templete = relationships_templete;
+    public void setrelationships_template(Map<String, Relationships> relationships_template) {
+        this.relationships_template = relationships_template;
     }
 
     public Set<String> getImports() {
@@ -109,7 +109,7 @@ public class Definitions {
                 ", imports=" + imports +
                 ", topology_template=" + topology_template +
                 ", dsl_definitions=" + dsl_definitions +
-                ", relationships_templete=" + relationships_templete +
+                ", relationships_template=" + relationships_template +
                 '}';
     }
 }

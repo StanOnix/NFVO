@@ -269,7 +269,7 @@ topology_template:
         virtual_linkable:
           valid_source_types: tosca.nodes.nfv.CP
 
-relationships_templete:
+relationships_template:
   rel1:
     type: tosca.nodes.relationships.ConnectsTo
     source: bind9

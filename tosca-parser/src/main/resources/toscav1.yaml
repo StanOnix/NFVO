@@ -125,7 +125,7 @@ topology_template:
         virtualbinding: VDU2
       virtualLink: private
 
-relationships_templete:
+relationships_template:
   connection_server_client:
     type: tosca.nodes.relationships.ConnectsTo
     source: iperf-server
