@@ -42,6 +42,9 @@ public class GsonDeserializerNFVMessage implements JsonDeserializer<NFVMessage> 
             case "INSTANTIATE":
                 result = gson.fromJson(json, OrVnfmInstantiateMessage.class);
                 break;
+            case "GRANT_OPERATION":
+                result = gson.fromJson(json, OrVnfmGrantLifecycleOperationMessage.class);
+                break;
             case "SCALING":
                 result = gson.fromJson(json, OrVnfmScalingMessage.class);
                 break;
